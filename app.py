@@ -3,55 +3,51 @@ import numpy as np
 import matplotlib.pyplot as plt
 from itertools import combinations
 
+# Sahifa sozlamalari
 st.set_page_config(page_title="Линейное программирование — Решатель", layout="wide")
 
-# --- SETTINGS you can tweak quickly ---
-FIG_W, FIG_H = 7.6, 4.6              # matplotlib figure size (inch)
-LEFT_PANEL_HEIGHT_PX = 460            # chap panel balandligi (grafik bilan teng bo‘lishi uchun)
-
-# --- CSS ---
-st.markdown(f"""
+# --- CSS dizayn ---
+st.markdown("""
 <style>
-.block-container {{ padding-top: .4rem; max-width: 1400px; }}
-h1 {{ font-size: 1.45rem; text-align: center; margin-bottom:.2rem; }}
-/* ixcham elementlar */
-.stNumberInput > div > div > input {{
-  width: 58px !important; font-size: .8rem !important; padding: 2px 3px !important;
-}}
-.stRadio label {{ font-size: .85rem !important; }}
-.stButton>button {{
-  padding: .28rem .6rem; font-size: .8rem; border-radius: 6px;
-  background:#007bff; color:#fff; border:none;
-}}
-.stButton>button:hover {{ background:#0056b3; }}
-/* Card ko‘rinishi */
-.card {{
-  background:#fff; border-radius:10px; padding:12px;
-  box-shadow:0 2px 8px rgba(0,0,0,.08); margin-bottom:10px;
-}}
-/* ⭐ Chap panelni grafik balandligiga tenglab, scroll beramiz */
-#lp-left {{
-  max-height: {LEFT_PANEL_HEIGHT_PX}px;
-  overflow-y: auto;
-  padding-right: 6px;    /* scrollbar yonidagi joy */
-}}
-/* satrlar orasini ixchamroq qilish */
-.row {{ margin-bottom: .35rem; }}
+h1 {text-align:center;}
+.block-container {max-width:1400px; padding-top:0.5rem;}
+/* ixcham inputlar */
+.stNumberInput > div > div > input {
+    width: 60px !important;
+    font-size: 0.8rem !important;
+    padding: 2px 4px !important;
+}
+/* radio label ixcham */
+.stRadio label {font-size: 0.85rem !important;}
+/* tugmalar */
+.stButton>button {
+    padding: 0.25rem 0.6rem;
+    font-size: 0.8rem;
+    border-radius: 6px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+}
+.stButton>button:hover {background-color:#0056b3;}
+/* trash tugma */
+button[kind="secondary"] {
+    background-color: #ff4d4d !important;
+    color: white !important;
+    border: none !important;
+}
+button[kind="secondary"]:hover {background-color: #c9302c !important;}
 </style>
 """, unsafe_allow_html=True)
 
-# --- Title ---
+# --- Sarlavha ---
 st.markdown("<h1>📊 Линейное программирование — Решатель</h1>", unsafe_allow_html=True)
-st.caption("Интерактивная визуализация задачи линейного программирования (2 переменные)")
+st.caption("Интерактивная визуализация и решение задач линейного программирования (2 переменные)")
 
-# Layout: chap / o‘ng
-col_left, col_right = st.columns([1.05, 1.55], gap="large")
+# Chap va o‘ng tomonni aniqlaymiz
+col_left, col_right = st.columns([0.85, 1.15], gap="large")
 
-# ===== LEFT PANEL =====
+# === CHAP PANEL ===
 with col_left:
-    st.markdown('<div id="lp-left">', unsafe_allow_html=True)
-
-    st.markdown('<div class="card">', unsafe_allow_html=True)
     st.markdown("### 🎯 Целевая функция")
     c1, c2, c3 = st.columns([1, 0.25, 1])
     with c1:
@@ -62,9 +58,7 @@ with col_left:
         a2 = st.number_input("", value=-7.1, key="a2")
 
     opt_type = st.radio("Тип оптимизации:", ["max", "min"], horizontal=True)
-    st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="card">', unsafe_allow_html=True)
     st.markdown("### ✏️ Ограничения")
 
     if "constraints" not in st.session_state:
@@ -82,37 +76,34 @@ with col_left:
     def remove_constraint(i):
         st.session_state.constraints.pop(i)
 
+    # Har bir cheklov uchun qator
     for i, cons in enumerate(st.session_state.constraints):
-        r1, r_plus, r2, r_y, r_sign, r_b, r_del = st.columns([1, .25, 1, .35, 1.1, .9, .25])
-        with r1:  cons["c"] = st.number_input("", value=cons["c"], key=f"c{i}")
-        with r_plus: st.markdown("x +")
-        with r2:  cons["d"] = st.number_input("", value=cons["d"], key=f"d{i}")
-        with r_y:  st.markdown("y")
-        with r_sign:
+        c = st.columns([1, .25, 1, .35, 1.1, .9, .25])
+        with c[0]: cons["c"] = st.number_input("", value=cons["c"], key=f"c{i}")
+        with c[1]: st.markdown("x +")
+        with c[2]: cons["d"] = st.number_input("", value=cons["d"], key=f"d{i}")
+        with c[3]: st.markdown("y")
+        with c[4]:
             cons["sign"] = st.radio(
                 "", ["≤", "≥", "="],
                 index=["≤", "≥", "="].index(cons["sign"]),
                 horizontal=True, key=f"sign{i}"
             )
-        with r_b:  cons["b"] = st.number_input("", value=cons["b"], key=f"b{i}")
-        with r_del:
-            if st.button("🗑", key=f"del{i}"):
+        with c[5]: cons["b"] = st.number_input("", value=cons["b"], key=f"b{i}")
+        with c[6]:
+            if st.button("🗑", key=f"del{i}", type="secondary"):
                 remove_constraint(i)
                 st.experimental_rerun()
 
     st.button("+ Добавить", on_click=add_constraint)
-
     cA, cB, cC = st.columns(3)
     solve = cA.button("Решить")
     clear = cB.button("Очистить")
-    _ = cC.button("Скачать отчёт (PDF)")
     if clear:
         st.session_state.constraints = []
         st.experimental_rerun()
 
-    st.markdown('</div>', unsafe_allow_html=True)  # /#lp-left
-
-# ===== RIGHT PANEL (GRAPH) =====
+# === O‘NG PANEL (GRAFIK) ===
 with col_right:
     if solve:
         X = np.linspace(-20, 20, 600)
@@ -142,7 +133,7 @@ with col_right:
             ok = True
             for (c, d, b, sign) in lines:
                 val = c*x + d*y
-                if (sign=="≤" and val>b+1e-6) or (sign=="≥" and val<b-1e-6) or (sign=="=" and abs(val-b)>1e-6):
+                if (sign=="≤" and val>b) or (sign=="≥" and val<b) or (sign=="=" and abs(val-b)>1e-6):
                     ok=False; break
             if ok: feas.append((x, y))
 
@@ -153,16 +144,14 @@ with col_right:
         else:
             ox = oy = zopt = None
 
-        fig, ax = plt.subplots(figsize=(FIG_W, FIG_H))
+        fig, ax = plt.subplots(figsize=(6.8, 4.4))
         colors = ['#007bff','#ff9800','#9c27b0','#4caf50','#f44336','#795548','#00bcd4']
         for i,(c,d,b,sign) in enumerate(lines):
             Y = (b - c*X) / d
-            ax.plot(X, Y, color=colors[i%len(colors)],
-                    lw=1.4, label=f"{c:.2f}x + {d:.2f}y {sign} {b:.2f}")
-            if sign=="≤":
-                ax.fill_between(X, Y, -100, color=colors[i%len(colors)], alpha=.12)
-            elif sign=="≥":
-                ax.fill_between(X, Y,  100, color=colors[i%len(colors)], alpha=.12)
+            ax.plot(X, Y, color=colors[i%len(colors)], lw=1.4,
+                    label=f"{c:.2f}x + {d:.2f}y {sign} {b:.2f}")
+            if sign=="≤": ax.fill_between(X, Y, -100, color=colors[i%len(colors)], alpha=.12)
+            elif sign=="≥": ax.fill_between(X, Y, 100, color=colors[i%len(colors)], alpha=.12)
 
         if feas:
             ax.scatter(*zip(*feas), c="red", s=25, label="Угловые точки")
