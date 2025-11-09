@@ -5,25 +5,31 @@ from itertools import combinations
 
 st.set_page_config(page_title="Линейное программирование — Решатель", layout="wide")
 
-# --- CSS dizayn ---
+# --- CSS ---
 st.markdown("""
 <style>
 .block-container {
-    padding-top: 0.5rem;
-    max-width: 1400px;
+    padding-top: 0.3rem;
+    max-width: 1350px;
 }
 h1 {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
     text-align: center;
 }
 .stNumberInput > div > div > input {
-    width: 60px !important;
+    width: 55px !important;
+    font-size: 0.75rem !important;
+    padding: 1px 2px !important;
+}
+.stRadio > div {
+    gap: 0.3rem !important;
+}
+.stRadio label {
     font-size: 0.8rem !important;
-    padding: 2px 3px !important;
 }
 .stButton>button {
-    padding: 0.3rem 0.7rem;
-    font-size: 0.8rem;
+    padding: 0.25rem 0.6rem;
+    font-size: 0.75rem;
     border-radius: 6px;
     background-color: #007bff;
     color: white;
@@ -32,30 +38,27 @@ h1 {
 .stButton>button:hover {
     background-color: #0056b3;
 }
-/* 🔹 Trash icon */
 .trash-btn {
     background-color: #ff4d4d;
     color: white;
     border: none;
     border-radius: 50%;
-    width: 28px;
-    height: 28px;
+    width: 25px;
+    height: 25px;
     cursor: pointer;
-    font-size: 15px;
+    font-size: 14px;
     text-align: center;
 }
 .trash-btn:hover {
     background-color: #cc0000;
 }
-/* 🔹 Card style */
 .stCard {
     background-color: #ffffff;
     border-radius: 10px;
-    padding: 15px;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
     margin-bottom: 10px;
 }
-/* 🔹 Tenglashtirish: panel balandliklarini to‘g‘rilash */
 [data-testid="stHorizontalBlock"] {
     align-items: flex-start !important;
 }
@@ -66,12 +69,12 @@ h1 {
 st.markdown("<h1>📊 Линейное программирование — Решатель</h1>", unsafe_allow_html=True)
 st.caption("Интерактивная визуализация и решение задач линейного программирования (2 переменные)")
 
-# ✅ Chap va o‘ng panelni proporsional qilish
-col_left, col_right = st.columns([1.1, 1.4], gap="large")
+# ✅ Chap panelni biroz tor, o‘ng panelni baland qilish
+col_left, col_right = st.columns([0.9, 1.5], gap="large")
 
 # === LEFT PANEL ===
 with col_left:
-    st.markdown('<div class="stCard">', unsafe_allow_html=True)
+    st.markdown('<div class="stCard" style="zoom:0.9;">', unsafe_allow_html=True)
     st.markdown("### 🎯 Целевая функция")
     c1, c2, c3 = st.columns([1, 0.3, 1])
     with c1:
@@ -84,7 +87,7 @@ with col_left:
     opt_type = st.radio("Тип оптимизации:", ["max", "min"], horizontal=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="stCard">', unsafe_allow_html=True)
+    st.markdown('<div class="stCard" style="zoom:0.9;">', unsafe_allow_html=True)
     st.markdown("### ✏️ Ограничения")
 
     if "constraints" not in st.session_state:
@@ -102,7 +105,7 @@ with col_left:
         st.session_state.constraints.pop(i)
 
     for i, cons in enumerate(st.session_state.constraints):
-        cols = st.columns([1, 0.3, 1, 0.5, 1, 0.7, 0.3])
+        cols = st.columns([1, 0.25, 1, 0.4, 1, 0.6, 0.3])
         with cols[0]: cons["c"] = st.number_input("", value=cons["c"], key=f"c{i}")
         with cols[1]: st.markdown("*x +*")
         with cols[2]: cons["d"] = st.number_input("", value=cons["d"], key=f"d{i}")
