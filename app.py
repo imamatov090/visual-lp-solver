@@ -3,33 +3,60 @@ import numpy as np
 import matplotlib.pyplot as plt
 from itertools import combinations
 
+# Sahifa sozlamalari
 st.set_page_config(page_title="Линейное программирование — Решатель", layout="wide")
 
-# --- Kichraytirilgan CSS ---
+# --- KICHIK dizayn va joylashuvni sozlash ---
 st.markdown("""
     <style>
-        .block-container {padding-top:0.3rem; max-width:1200px;}
-        h1{font-size:1.4rem;margin-bottom:0.3rem;text-align:center;}
-        h3{font-size:1rem;}
-        label{font-size:0.8rem;}
-        .stNumberInput>div>div>input,.stSelectbox>div>div>select{
-            height:26px;font-size:0.8rem;
+        .block-container {
+            padding-top: 0.3rem;
+            padding-left: 0.5rem; /* CHAPGA YOPISHTIRILDI */
+            max-width: 1180px; /* biroz torroq, shunda hammasi sig‘adi */
         }
-        .stButton>button{
-            padding:0.25rem 0.6rem;font-size:0.8rem;
-            border-radius:5px;background-color:#007bff;color:white;
+        h1 {
+            font-size: 1.4rem;
+            margin-bottom: 0.3rem;
+            text-align: center;
         }
-        .stButton>button:hover{background-color:#0056b3;}
-        .graph-box{
-            background-color:white;
-            padding:0.6rem;
-            border-radius:10px;
-            box-shadow:0 2px 6px rgba(0,0,0,0.1);
+        h3 {
+            font-size: 1rem;
         }
-        .caption-text{font-size:0.75rem;color:gray;}
+        label {
+            font-size: 0.8rem;
+        }
+        .stNumberInput>div>div>input, .stSelectbox>div>div>select {
+            height: 26px;
+            font-size: 0.8rem;
+        }
+        .stButton>button {
+            padding: 0.25rem 0.6rem;
+            font-size: 0.8rem;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+        }
+        .stButton>button:hover {
+            background-color: #0056b3;
+        }
+        .graph-box {
+            background-color: white;
+            padding: 0.6rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .caption-text {
+            font-size: 0.75rem;
+            color: gray;
+        }
+        /* CHAP PANELNI CHAPGA SURISH */
+        [data-testid="stVerticalBlock"] > div:first-child {
+            margin-left: -20px; /* bu yozuvlarni to‘liq ko‘rsatadi */
+        }
     </style>
 """, unsafe_allow_html=True)
 
+# --- Sarlavha ---
 st.markdown("<h1>📊 Линейное программирование — Решатель</h1>", unsafe_allow_html=True)
 st.caption("Интерактивная визуализация задачи линейного программирования (2 переменные)")
 
@@ -51,6 +78,7 @@ with col_left:
 
     st.markdown("### ✏️ Ограничения")
 
+    # Dastlabki shartlar
     if "constraints" not in st.session_state:
         st.session_state.constraints = [
             {"c": 3.2, "d": -2.0, "sign": "=", "b": 3.0},
@@ -77,7 +105,7 @@ with col_left:
         with cols[3]:
             st.markdown("*y*")
         with cols[4]:
-            cons["sign"] = st.selectbox("", ["≤", "≥", "="], 
+            cons["sign"] = st.selectbox("", ["≤", "≥", "="],
                 index=["≤", "≥", "="].index(cons["sign"]), key=f"sign{i}")
         with cols[5]:
             cons["b"] = st.number_input("", value=cons["b"], key=f"b{i}")
