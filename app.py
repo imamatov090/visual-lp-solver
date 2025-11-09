@@ -6,12 +6,12 @@ from itertools import combinations
 # --- Sahifa sozlamalari ---
 st.set_page_config(page_title="Линейное программирование — Решатель", layout="wide")
 
-# --- CSS (tashqi ko‘rinish) ---
+# --- CSS (dizayn va tuzilma) ---
 st.markdown("""
     <style>
         .block-container {
-            padding-top: 0.3rem;
-            max-width: 1300px; /* sahifa eni */
+            padding-top: 0.5rem;
+            max-width: 1300px;
         }
         h1 {
             font-size: 1.4rem;
@@ -20,22 +20,35 @@ st.markdown("""
         h3 {
             font-size: 1rem;
         }
+        /* 🔹 Number input — ixcham */
         .stNumberInput > div > div > input {
             width: 60px !important;
             font-size: 0.8rem !important;
             padding: 2px 3px !important;
         }
+        /* 🔹 Selectbox (≤, ≥, =) belgilarini ko‘rsatish uchun */
         .stSelectbox > div > div > select {
-            height: 26px !important;
-            font-size: 0.8rem !important;
-            padding: 0px 4px !important;
+            height: 28px !important;
+            font-size: 1rem !important;
+            color: black !important;
+            text-align: center !important;
+            background-color: #ffffff !important;
+            border: 1px solid #ccc !important;
+            border-radius: 4px !important;
         }
+        .stSelectbox > div > div {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* 🔹 Tugmalar */
         .stButton>button {
-            padding: 0.25rem 0.6rem;
+            padding: 0.3rem 0.7rem;
             font-size: 0.8rem;
-            border-radius: 5px;
+            border-radius: 6px;
             background-color: #007bff;
             color: white;
+            border: none;
         }
         .stButton>button:hover {
             background-color: #0056b3;
@@ -44,22 +57,31 @@ st.markdown("""
             font-size: 0.75rem;
             color: gray;
         }
-        /* CHAP PANELNI CHAPGA YAQIN QILISH */
+        /* 🔹 Chap panelni joylash */
         [data-testid="stVerticalBlock"] > div:first-child {
             margin-left: -30px;
+        }
+        /* 🔹 Card-style dizayn */
+        .stCard {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
         }
     </style>
 """, unsafe_allow_html=True)
 
 # --- Sarlavha ---
 st.markdown("<h1>📊 Линейное программирование — Решатель</h1>", unsafe_allow_html=True)
-st.caption("Интерактивная визуализация задачи линейного программирования (2 переменные)")
+st.caption("Интерактивная визуализация и решение задач линейного программирования (2 переменные)")
 
-# --- ustunlar ---
+# --- Ustunlar (chap va o‘ng panel) ---
 col_left, col_right = st.columns([1, 1.8])
 
 # ===== CHAP PANEL =====
 with col_left:
+    st.markdown('<div class="stCard">', unsafe_allow_html=True)
     st.markdown("### 🎯 Целевая функция")
     c1, c2, c3, c4 = st.columns([1, 0.3, 1, 0.6])
     with c1:
@@ -70,9 +92,12 @@ with col_left:
         a2 = st.number_input("", value=-7.1, key="a2")
     with c4:
         opt_type = st.selectbox("", ["max", "min"], key="opt")
+    st.markdown('</div>', unsafe_allow_html=True)
 
+    st.markdown('<div class="stCard">', unsafe_allow_html=True)
     st.markdown("### ✏️ Ограничения")
 
+    # Dastlabki qiymatlar
     if "constraints" not in st.session_state:
         st.session_state.constraints = [
             {"c": 3.2, "d": -2.0, "sign": "=", "b": 3.0},
@@ -87,7 +112,6 @@ with col_left:
     def remove_constraint(i):
         st.session_state.constraints.pop(i)
 
-    # --- Har bir shart qatori ---
     for i, cons in enumerate(st.session_state.constraints):
         cols = st.columns([1, 0.3, 1, 0.3, 0.7, 0.7, 0.2])
         with cols[0]:
@@ -117,6 +141,7 @@ with col_left:
     if clear:
         st.session_state.constraints = []
         st.experimental_rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # ===== O‘NG PANEL =====
 with col_right:
@@ -137,7 +162,6 @@ with col_right:
             y = (a1*c2 - a2*c1)/det
             return (x, y)
 
-        from itertools import combinations
         points = []
         for l1, l2 in combinations(lines, 2):
             p = intersect(l1, l2)
@@ -160,6 +184,7 @@ with col_right:
         else:
             opt_x,opt_y,z_opt=None,None,None
 
+        # --- Grafik ---
         fig, ax = plt.subplots(figsize=(7, 4.3))
         colors=['#007bff','#ff9800','#9c27b0','#4caf50','#f44336','#795548','#00bcd4']
         for i,(c,d,b,sign) in enumerate(lines):
