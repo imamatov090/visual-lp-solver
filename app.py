@@ -3,51 +3,50 @@ import numpy as np
 import matplotlib.pyplot as plt
 from itertools import combinations
 
-# Streamlit sahifa sozlamalari
-st.set_page_config(page_title="📊 Линейное программирование — Решатель", layout="wide")
+st.set_page_config(page_title="Линейное программирование — Решатель", layout="wide")
 
-# --- CSS chiroyli ko'rinish uchun ---
+# --- CSS (kichikroq dizayn) ---
 st.markdown("""
     <style>
-        body { background-color: #f8f9fa; }
-        .stApp { background-color: #f8f9fa; }
-        div[data-testid="stVerticalBlock"] { gap: 1rem; }
-        .block-container { padding-top: 1rem; padding-bottom: 0rem; }
-        h1, h3 { color: #2c3e50; }
+        .block-container { padding-top: 0.5rem; padding-bottom: 0rem; max-width: 1400px; }
+        h1 { font-size: 1.7rem; margin-bottom: 0.5rem; }
+        h3 { font-size: 1.1rem; }
         .stButton button {
             background-color: #007bff;
             color: white;
-            border-radius: 8px;
-            padding: 0.5rem 1rem;
-            border: none;
+            border-radius: 6px;
+            padding: 0.3rem 0.7rem;
+            font-size: 0.85rem;
         }
         .stButton button:hover {
             background-color: #0056b3;
             color: #fff;
         }
         .stTextInput>div>div>input, .stNumberInput>div>div>input {
-            border-radius: 8px;
+            height: 2rem;
+            font-size: 0.9rem;
         }
         .graph-box {
             background-color: white;
-            padding: 1.5rem;
-            border-radius: 15px;
-            box-shadow: 0px 3px 10px rgba(0,0,0,0.1);
+            padding: 0.7rem;
+            border-radius: 10px;
+            box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
         }
+        label, .stSelectbox label { font-size: 0.9rem; }
+        .caption-text { font-size: 0.8rem; color: gray; }
     </style>
 """, unsafe_allow_html=True)
 
-# --- Sarlavha ---
-st.markdown("<h1 style='text-align:center;'>📈 Линейное программирование — Решатель</h1>", unsafe_allow_html=True)
-st.caption("Интерактивная визуализация задачи линейного программирования (2 переменные)")
+st.markdown("<h1 style='text-align:center;'>📊 Линейное программирование — Решатель</h1>", unsafe_allow_html=True)
+st.caption("Визуализация задачи линейного программирования (2 переменные)")
 
 # --- Chap va o‘ng ustunlar ---
-col_left, col_right = st.columns([1, 2])  # chap: 1 qism, o‘ng: 2 qism
+col_left, col_right = st.columns([1, 2])
 
 # ===== CHAP PANEL =====
 with col_left:
     st.markdown("### 🎯 Целевая функция")
-    col1, col2, col3, col4 = st.columns([1, 0.3, 1, 0.7])
+    col1, col2, col3, col4 = st.columns([1, 0.25, 1, 0.7])
     with col1:
         a1 = st.number_input("", value=5.3, key="a1")
     with col2:
@@ -57,7 +56,7 @@ with col_left:
     with col4:
         opt_type = st.selectbox("", ["max", "min"], key="opt")
 
-    st.markdown("### 📏 Ограничения")
+    st.markdown("### ✏️ Ограничения")
 
     if "constraints" not in st.session_state:
         st.session_state.constraints = [
@@ -75,7 +74,7 @@ with col_left:
         st.session_state.constraints.pop(i)
 
     for i, cons in enumerate(st.session_state.constraints):
-        cols = st.columns([1, 0.2, 1, 0.2, 0.6, 0.6, 0.2])
+        cols = st.columns([1, 0.2, 1, 0.2, 0.5, 0.5, 0.15])
         with cols[0]:
             cons["c"] = st.number_input("", value=cons["c"], key=f"c{i}")
         with cols[1]:
@@ -89,12 +88,12 @@ with col_left:
         with cols[5]:
             cons["b"] = st.number_input("", value=cons["b"], key=f"b{i}")
         with cols[6]:
-            st.button("🟥", key=f"del{i}", on_click=remove_constraint, args=(i,))
+            st.button("❌", key=f"del{i}", on_click=remove_constraint, args=(i,))
 
-    st.button("+ Добавить ограничение", on_click=add_constraint)
-    st.markdown("<p style='font-size: 13px; color: gray;'>Коэффициенты можно вводить целыми или дробными (запятая/точка).</p>", unsafe_allow_html=True)
+    st.button("+ Добавить", on_click=add_constraint)
+    st.markdown("<p class='caption-text'>Коэффициенты можно вводить целыми или дробными (запятая/точка).</p>", unsafe_allow_html=True)
 
-    colA, colB, colC = st.columns([1, 1, 1])
+    colA, colB, colC = st.columns(3)
     solve = colA.button("Решить")
     clear = colB.button("Очистить")
     export_pdf = colC.button("Скачать отчёт (PDF)")
@@ -103,7 +102,7 @@ with col_left:
         st.session_state.constraints = []
         st.experimental_rerun()
 
-# ===== O‘NG PANEL (grafik) =====
+# ===== O‘NG PANEL =====
 with col_right:
     if solve:
         X = np.linspace(-20, 20, 600)
@@ -149,35 +148,34 @@ with col_right:
         else:
             opt_x, opt_y, z_opt = None, None, None
 
-        with st.container():
-            st.markdown("<div class='graph-box'>", unsafe_allow_html=True)
-            st.markdown("### 📉 График решения")
+        st.markdown("<div class='graph-box'>", unsafe_allow_html=True)
+        st.markdown("### 📉 График решения")
 
-            fig, ax = plt.subplots(figsize=(9, 7))
-            colors = ['#007bff', '#ff9800', '#9c27b0', '#4caf50', '#f44336', '#795548', '#00bcd4']
+        fig, ax = plt.subplots(figsize=(7, 5))
+        colors = ['#007bff', '#ff9800', '#9c27b0', '#4caf50', '#f44336', '#795548', '#00bcd4']
 
-            # Chiziqlarni chizish va sohalarni to‘ldirish
-            for idx, (c, d, b, sign) in enumerate(lines):
-                Y = (b - c * X) / d
-                ax.plot(X, Y, label=f"{c:.2f} * x + {d:.2f} * y {sign} {b:.2f}", color=colors[idx % len(colors)], linewidth=2)
-                if sign == "≤":
-                    ax.fill_between(X, Y, -100, color=colors[idx % len(colors)], alpha=0.15)
-                elif sign == "≥":
-                    ax.fill_between(X, Y, 100, color=colors[idx % len(colors)], alpha=0.15)
+        for idx, (c, d, b, sign) in enumerate(lines):
+            Y = (b - c * X) / d
+            ax.plot(X, Y, label=f"{c:.2f} * x + {d:.2f} * y {sign} {b:.2f}", color=colors[idx % len(colors)], linewidth=1.8)
+            if sign == "≤":
+                ax.fill_between(X, Y, -100, color=colors[idx % len(colors)], alpha=0.12)
+            elif sign == "≥":
+                ax.fill_between(X, Y, 100, color=colors[idx % len(colors)], alpha=0.12)
 
-            if feasible:
-                ax.scatter(*zip(*feasible), color="red", label="Угловые точки")
-                ax.scatter(opt_x, opt_y, color="gold", edgecolor="black", s=200, label="⭐ Оптимум")
-                ax.text(opt_x - 2, opt_y - 1, f"Оптимум ({opt_x:.2f}, {opt_y:.2f})", color="orange")
+        if feasible:
+            ax.scatter(*zip(*feasible), color="red", s=30, label="Угловые точки")
+            ax.scatter(opt_x, opt_y, color="gold", edgecolor="black", s=100, label="⭐ Оптимум")
+            ax.text(opt_x - 1, opt_y - 0.7, f"({opt_x:.2f}, {opt_y:.2f})", color="orange", fontsize=8)
 
-                if abs(a2) > 1e-8:
-                    ax.plot(X, (z_opt - a1 * X) / a2, "k--", label=f"Целевая прямая: {a1:.2f}x + {a2:.2f}y = {z_opt:.2f}")
+            if abs(a2) > 1e-8:
+                ax.plot(X, (z_opt - a1 * X) / a2, "k--", linewidth=1.2,
+                        label=f"Целевая прямая: {a1:.2f}x + {a2:.2f}y = {z_opt:.2f}")
 
-            ax.set_xlim(-15, 15)
-            ax.set_ylim(-15, 20)
-            ax.set_xlabel("x")
-            ax.set_ylabel("y")
-            ax.legend()
-            ax.grid(True, linestyle="--", alpha=0.5)
-            st.pyplot(fig)
-            st.markdown("</div>", unsafe_allow_html=True)
+        ax.set_xlim(-15, 15)
+        ax.set_ylim(-15, 20)
+        ax.set_xlabel("x", fontsize=9)
+        ax.set_ylabel("y", fontsize=9)
+        ax.legend(fontsize=8)
+        ax.grid(True, linestyle="--", alpha=0.5)
+        st.pyplot(fig)
+        st.markdown("</div>", unsafe_allow_html=True)
