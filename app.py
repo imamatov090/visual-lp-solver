@@ -9,31 +9,32 @@ st.set_page_config(page_title="Линейное программирование
 # --- CSS dizayn ---
 st.markdown("""
 <style>
-h1 {text-align:center;}
-.block-container {max-width:1400px; padding-top:0.5rem;}
-/* ixcham inputlar */
-.stNumberInput > div > div > input {
-    width: 60px !important;
-    font-size: 0.8rem !important;
-    padding: 2px 4px !important;
+.block-container {max-width:1400px; padding-top:0.3rem;}
+h1 {text-align:center; font-size:1.2rem;}
+/* chap panelni ixcham qilish uchun */
+.small-panel * {
+    font-size: 0.65rem !important;
 }
-/* radio label ixcham */
-.stRadio label {font-size: 0.85rem !important;}
-/* tugmalar */
+.stNumberInput > div > div > input {
+    width: 45px !important;
+    font-size: 0.65rem !important;
+    padding: 1px 2px !important;
+}
+.stRadio label {font-size: 0.65rem !important;}
 .stButton>button {
-    padding: 0.25rem 0.6rem;
-    font-size: 0.8rem;
-    border-radius: 6px;
+    padding: 0.18rem 0.4rem;
+    font-size: 0.65rem;
+    border-radius: 5px;
     background-color: #007bff;
     color: white;
     border: none;
 }
 .stButton>button:hover {background-color:#0056b3;}
-/* trash tugma */
 button[kind="secondary"] {
     background-color: #ff4d4d !important;
     color: white !important;
     border: none !important;
+    font-size: 0.7rem !important;
 }
 button[kind="secondary"]:hover {background-color: #c9302c !important;}
 </style>
@@ -43,13 +44,14 @@ button[kind="secondary"]:hover {background-color: #c9302c !important;}
 st.markdown("<h1>📊 Линейное программирование — Решатель</h1>", unsafe_allow_html=True)
 st.caption("Интерактивная визуализация и решение задач линейного программирования (2 переменные)")
 
-# Chap va o‘ng tomonni aniqlaymiz
-col_left, col_right = st.columns([0.85, 1.15], gap="large")
+# Chap va o‘ng tomonni aniqlaymiz (chapni torroq qilamiz)
+col_left, col_right = st.columns([0.7, 1.3], gap="large")
 
 # === CHAP PANEL ===
 with col_left:
+    st.markdown('<div class="small-panel">', unsafe_allow_html=True)
     st.markdown("### 🎯 Целевая функция")
-    c1, c2, c3 = st.columns([1, 0.25, 1])
+    c1, c2, c3 = st.columns([1, 0.2, 1])
     with c1:
         a1 = st.number_input("", value=5.3, key="a1")
     with c2:
@@ -78,7 +80,7 @@ with col_left:
 
     # Har bir cheklov uchun qator
     for i, cons in enumerate(st.session_state.constraints):
-        c = st.columns([1, .25, 1, .35, 1.1, .9, .25])
+        c = st.columns([1, .2, 1, .25, 1.1, .8, .25])
         with c[0]: cons["c"] = st.number_input("", value=cons["c"], key=f"c{i}")
         with c[1]: st.markdown("x +")
         with c[2]: cons["d"] = st.number_input("", value=cons["d"], key=f"d{i}")
@@ -96,12 +98,13 @@ with col_left:
                 st.experimental_rerun()
 
     st.button("+ Добавить", on_click=add_constraint)
-    cA, cB, cC = st.columns(3)
+    cA, cB = st.columns(2)
     solve = cA.button("Решить")
     clear = cB.button("Очистить")
     if clear:
         st.session_state.constraints = []
         st.experimental_rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # === O‘NG PANEL (GRAFIK) ===
 with col_right:
