@@ -1,95 +1,123 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-from pulp import LpMaximize, LpMinimize, LpProblem, LpVariable, LpStatus
+from pulp import LpProblem, LpVariable, LpMaximize, LpMinimize, LpStatus
+from io import BytesIO
+from fpdf import FPDF
 
 st.set_page_config(page_title="Линейное программирование — Решатель", layout="wide")
 
-st.title("📊 Линейное программирование — Решатель")
-st.markdown("Визуализация и решение задачи линейного программирования (2 переменные)")
-
-# --- Левая панель: ввод данных ---
-st.sidebar.header("Целевая функция")
-a1 = st.sidebar.number_input("Коэффициент при x (a₁)", value=3.0)
-a2 = st.sidebar.number_input("Коэффициент при y (a₂)", value=4.0)
-opt_type = st.sidebar.selectbox("Тип оптимизации", ["max", "min"])
-
-st.sidebar.header("Ограничения")
-st.sidebar.write("Введите коэффициенты для ограничений (≤, ≥, =)")
-
-c1 = st.sidebar.number_input("c₁ (x)", value=2.0)
-d1 = st.sidebar.number_input("d₁ (y)", value=1.0)
-b1 = st.sidebar.number_input("b₁ (правая часть)", value=8.0)
-sign1 = st.sidebar.selectbox("Знак 1", ["≤", "≥", "="], key="sign1")
-
-c2 = st.sidebar.number_input("c₂ (x)", value=1.0)
-d2 = st.sidebar.number_input("d₂ (y)", value=2.0)
-b2 = st.sidebar.number_input("b₂ (правая часть)", value=10.0)
-sign2 = st.sidebar.selectbox("Знак 2", ["≤", "≥", "="], key="sign2")
-
-st.sidebar.info("Можно использовать только 2 ограничения в этой демо-версии")
-
-# --- Модель ---
-model = LpProblem(name="LP", sense=LpMaximize if opt_type == "max" else LpMinimize)
-x = LpVariable("x", lowBound=0)
-y = LpVariable("y", lowBound=0)
-
-# --- Функция добавления ограничения ---
-def add_constraint(model, c, d, b, sign):
-    if sign == "≤":
-        model += c * x + d * y <= b
-    elif sign == "≥":
-        model += c * x + d * y >= b
-    else:
-        model += c * x + d * y == b
-
-# --- Добавляем ограничения ---
-add_constraint(model, c1, d1, b1, sign1)
-add_constraint(model, c2, d2, b2, sign2)
+st.markdown("<h1 style='text-align: center;'>📊 Линейное программирование — Решатель</h1>", unsafe_allow_html=True)
+st.caption("Визуализация и анализ задачи линейного программирования (2 переменные)")
 
 # --- Целевая функция ---
-model += a1 * x + a2 * y
+st.subheader("Целевая функция")
+col_obj = st.columns([1, 1, 0.5, 0.5])
+with col_obj[0]:
+    a1 = st.number_input("a₁ (коэффициент при x)", value=3.0)
+with col_obj[1]:
+    a2 = st.number_input("a₂ (коэффициент при y)", value=4.0)
+with col_obj[2]:
+    opt_type = st.selectbox("Тип", ["max", "min"])
 
-# --- Решаем ---
-model.solve()
+# --- Ограничения ---
+st.subheader("Ограничения")
+st.caption("Можно вводить несколько ограничений (≤, ≥, =) — нажмите '+ Добавить ограничение'")
 
-# --- Интерфейс ---
-col1, col2 = st.columns([1, 2])
+if "constraints" not in st.session_state:
+    st.session_state.constraints = [{"c": 2.0, "d": 1.0, "b": 8.0, "sign": "≤"}]
 
-with col1:
-    st.subheader("📋 Результаты решения")
-    st.write(f"**Статус:** {LpStatus[model.status]}")
-    st.write(f"**x = {x.value():.2f}**")
-    st.write(f"**y = {y.value():.2f}**")
-    st.write(f"**Целевая функция (z) = {model.objective.value():.2f}**")
+def add_constraint():
+    st.session_state.constraints.append({"c": 1.0, "d": 1.0, "b": 5.0, "sign": "≤"})
 
-with col2:
-    st.subheader("📈 График решения")
-    fig, ax = plt.subplots()
+def remove_constraint(i):
+    st.session_state.constraints.pop(i)
 
-    X = np.linspace(0, 20, 400)
-    def line(c, d, b):
-        return (b - c * X) / d
+for i, cons in enumerate(st.session_state.constraints):
+    cols = st.columns([1, 1, 1, 0.7, 0.4])
+    with cols[0]:
+        cons["c"] = st.number_input(f"c{i+1} (x)", value=cons["c"], key=f"cx{i}")
+    with cols[1]:
+        cons["d"] = st.number_input(f"d{i+1} (y)", value=cons["d"], key=f"dy{i}")
+    with cols[2]:
+        cons["b"] = st.number_input(f"b{i+1} (правая часть)", value=cons["b"], key=f"b{i}")
+    with cols[3]:
+        cons["sign"] = st.selectbox("Знак", ["≤", "≥", "="], index=["≤", "≥", "="].index(cons["sign"]), key=f"sign{i}")
+    with cols[4]:
+        st.button("❌", key=f"del{i}", on_click=remove_constraint, args=(i,))
 
-    y1 = line(c1, d1, b1)
-    y2 = line(c2, d2, b2)
+st.button("+ Добавить ограничение", on_click=add_constraint)
 
-    ax.plot(X, y1, label=f"{c1}x + {d1}y {sign1} {b1}")
-    ax.plot(X, y2, label=f"{c2}x + {d2}y {sign2} {b2}")
+# --- Кнопки управления ---
+col_btns = st.columns([1, 1, 1])
+solve = col_btns[0].button("🧮 Решить")
+clear = col_btns[1].button("🧹 Очистить")
+export_pdf = col_btns[2].button("📄 Скачать отчёт (PDF)")
 
-    # Заштрихованная допустимая область
-    Y_fill = np.minimum(y1, y2)
-    ax.fill_between(X, 0, np.maximum(0, Y_fill), alpha=0.3, color="green", label="Допустимая область")
+if clear:
+    st.session_state.constraints = [{"c": 2.0, "d": 1.0, "b": 8.0, "sign": "≤"}]
+    st.experimental_rerun()
 
-    # Оптимум
-    ax.scatter(x.value(), y.value(), color="red", s=100, label="Оптимум")
-    ax.text(x.value()+0.3, y.value(), f"({x.value():.1f}, {y.value():.1f})", color="red")
+# --- Решение задачи ---
+if solve:
+    model = LpProblem("LP", LpMaximize if opt_type == "max" else LpMinimize)
+    x = LpVariable("x", lowBound=0)
+    y = LpVariable("y", lowBound=0)
 
-    ax.set_xlim(0, 20)
-    ax.set_ylim(0, 20)
-    ax.set_xlabel("x")
-    ax.set_ylabel("y")
-    ax.legend()
-    st.pyplot(fig)
+    model += a1 * x + a2 * y
 
-st.caption("Разработано специально для визуального изучения линейного программирования (демо-версия).")
+    for cons in st.session_state.constraints:
+        c, d, b, sign = cons["c"], cons["d"], cons["b"], cons["sign"]
+        if sign == "≤":
+            model += c * x + d * y <= b
+        elif sign == "≥":
+            model += c * x + d * y >= b
+        else:
+            model += c * x + d * y == b
+
+    model.solve()
+
+    col1, col2 = st.columns([1, 2])
+
+    with col1:
+        st.subheader("📋 Результаты решения")
+        st.write(f"**Статус:** {LpStatus[model.status]}")
+        st.write(f"**x = {x.value():.2f}**")
+        st.write(f"**y = {y.value():.2f}**")
+        st.write(f"**Целевая функция (z) = {model.objective.value():.2f}**")
+
+    with col2:
+        st.subheader("📈 График решения")
+        fig, ax = plt.subplots(figsize=(8, 6))
+
+        X = np.linspace(-10, 20, 500)
+        colors = ['blue', 'orange', 'purple', 'green', 'red', 'brown']
+        for idx, cons in enumerate(st.session_state.constraints):
+            c, d, b, sign = cons["c"], cons["d"], cons["b"], cons["sign"]
+            Y = (b - c * X) / d if d != 0 else np.nan
+            ax.plot(X, Y, label=f"{c:.2f}x + {d:.2f}y {sign} {b:.2f}", color=colors[idx % len(colors)])
+
+        ax.scatter(x.value(), y.value(), color="gold", s=120, edgecolor="black", label="Оптимум ★")
+        ax.fill_between(X, 0, np.maximum(0, np.minimum.reduce([
+            (cons["b"] - cons["c"] * X) / cons["d"] for cons in st.session_state.constraints if cons["d"] != 0
+        ])), alpha=0.2, color="green", label="Допустимая область")
+
+        ax.set_xlabel("x")
+        ax.set_ylabel("y")
+        ax.set_xlim(-10, 20)
+        ax.set_ylim(-10, 20)
+        ax.legend()
+        st.pyplot(fig)
+
+    # --- PDF экспорт ---
+    if export_pdf:
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Arial", size=12)
+        pdf.cell(200, 10, txt="Отчёт по задаче линейного программирования", ln=True, align="C")
+        pdf.cell(200, 10, txt=f"Тип оптимизации: {opt_type}", ln=True)
+        pdf.cell(200, 10, txt=f"Целевая функция: z = {a1}x + {a2}y", ln=True)
+        pdf.cell(200, 10, txt=f"x = {x.value():.2f}, y = {y.value():.2f}, z = {model.objective.value():.2f}", ln=True)
+        pdf.output("report.pdf")
+        with open("report.pdf", "rb") as f:
+            st.download_button("⬇️ Скачать отчёт (PDF)", f, "report.pdf")
