@@ -5,48 +5,41 @@ from itertools import combinations
 
 st.set_page_config(page_title="Линейное программирование — Решатель", layout="wide")
 
-# --- CSS (kichikroq dizayn) ---
+# --- Kichraytirilgan CSS ---
 st.markdown("""
     <style>
-        .block-container { padding-top: 0.5rem; padding-bottom: 0rem; max-width: 1400px; }
-        h1 { font-size: 1.7rem; margin-bottom: 0.5rem; }
-        h3 { font-size: 1.1rem; }
-        .stButton button {
-            background-color: #007bff;
-            color: white;
-            border-radius: 6px;
-            padding: 0.3rem 0.7rem;
-            font-size: 0.85rem;
+        .block-container {padding-top:0.3rem; max-width:1200px;}
+        h1{font-size:1.4rem;margin-bottom:0.3rem;text-align:center;}
+        h3{font-size:1rem;}
+        label{font-size:0.8rem;}
+        .stNumberInput>div>div>input,.stSelectbox>div>div>select{
+            height:26px;font-size:0.8rem;
         }
-        .stButton button:hover {
-            background-color: #0056b3;
-            color: #fff;
+        .stButton>button{
+            padding:0.25rem 0.6rem;font-size:0.8rem;
+            border-radius:5px;background-color:#007bff;color:white;
         }
-        .stTextInput>div>div>input, .stNumberInput>div>div>input {
-            height: 2rem;
-            font-size: 0.9rem;
+        .stButton>button:hover{background-color:#0056b3;}
+        .graph-box{
+            background-color:white;
+            padding:0.6rem;
+            border-radius:10px;
+            box-shadow:0 2px 6px rgba(0,0,0,0.1);
         }
-        .graph-box {
-            background-color: white;
-            padding: 0.7rem;
-            border-radius: 10px;
-            box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
-        }
-        label, .stSelectbox label { font-size: 0.9rem; }
-        .caption-text { font-size: 0.8rem; color: gray; }
+        .caption-text{font-size:0.75rem;color:gray;}
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h1 style='text-align:center;'>📊 Линейное программирование — Решатель</h1>", unsafe_allow_html=True)
-st.caption("Визуализация задачи линейного программирования (2 переменные)")
+st.markdown("<h1>📊 Линейное программирование — Решатель</h1>", unsafe_allow_html=True)
+st.caption("Интерактивная визуализация задачи линейного программирования (2 переменные)")
 
-# --- Chap va o‘ng ustunlar ---
-col_left, col_right = st.columns([1, 2])
+# --- chap va o‘ng ustunlar (30% / 70%) ---
+col_left, col_right = st.columns([0.8, 2])
 
 # ===== CHAP PANEL =====
 with col_left:
     st.markdown("### 🎯 Целевая функция")
-    col1, col2, col3, col4 = st.columns([1, 0.25, 1, 0.7])
+    col1, col2, col3, col4 = st.columns([1, 0.2, 1, 0.6])
     with col1:
         a1 = st.number_input("", value=5.3, key="a1")
     with col2:
@@ -84,7 +77,8 @@ with col_left:
         with cols[3]:
             st.markdown("*y*")
         with cols[4]:
-            cons["sign"] = st.selectbox("", ["≤", "≥", "="], index=["≤", "≥", "="].index(cons["sign"]), key=f"sign{i}")
+            cons["sign"] = st.selectbox("", ["≤", "≥", "="], 
+                index=["≤", "≥", "="].index(cons["sign"]), key=f"sign{i}")
         with cols[5]:
             cons["b"] = st.number_input("", value=cons["b"], key=f"b{i}")
         with cols[6]:
@@ -96,7 +90,7 @@ with col_left:
     colA, colB, colC = st.columns(3)
     solve = colA.button("Решить")
     clear = colB.button("Очистить")
-    export_pdf = colC.button("Скачать отчёт (PDF)")
+    export_pdf = colC.button("PDF")
 
     if clear:
         st.session_state.constraints = []
@@ -107,7 +101,6 @@ with col_right:
     if solve:
         X = np.linspace(-20, 20, 600)
         lines = []
-
         for cons in st.session_state.constraints:
             c, d, b, sign = cons["c"], cons["d"], cons["b"], cons["sign"]
             if abs(d) < 1e-8:
@@ -116,11 +109,10 @@ with col_right:
 
         def intersect(l1, l2):
             (a1, b1, c1, _), (a2, b2, c2, _) = l1, l2
-            det = a1 * b2 - a2 * b1
-            if abs(det) < 1e-8:
-                return None
-            x = (c1 * b2 - c2 * b1) / det
-            y = (a1 * c2 - a2 * c1) / det
+            det = a1*b2 - a2*b1
+            if abs(det) < 1e-8: return None
+            x = (c1*b2 - c2*b1)/det
+            y = (a1*c2 - a2*c1)/det
             return (x, y)
 
         points = []
@@ -133,49 +125,35 @@ with col_right:
         for (x, y) in points:
             ok = True
             for (c, d, b, sign) in lines:
-                val = c * x + d * y
-                if (sign == "≤" and val > b + 1e-6) or (sign == "≥" and val < b - 1e-6) or (sign == "=" and abs(val - b) > 1e-6):
-                    ok = False
-                    break
-            if ok:
-                feasible.append((x, y))
+                val = c*x + d*y
+                if (sign=="≤" and val>b+1e-6) or (sign=="≥" and val<b-1e-6) or (sign=="=" and abs(val-b)>1e-6):
+                    ok=False;break
+            if ok: feasible.append((x, y))
 
         if feasible:
-            z_values = [a1 * x + a2 * y for (x, y) in feasible]
-            best_idx = np.argmax(z_values) if opt_type == "max" else np.argmin(z_values)
-            opt_x, opt_y = feasible[best_idx]
-            z_opt = z_values[best_idx]
+            z_vals=[a1*x+a2*y for x,y in feasible]
+            best=np.argmax(z_vals) if opt_type=="max" else np.argmin(z_vals)
+            opt_x,opt_y=feasible[best];z_opt=z_vals[best]
         else:
-            opt_x, opt_y, z_opt = None, None, None
+            opt_x,opt_y,z_opt=None,None,None
 
         st.markdown("<div class='graph-box'>", unsafe_allow_html=True)
-        st.markdown("### 📉 График решения")
-
-        fig, ax = plt.subplots(figsize=(7, 5))
-        colors = ['#007bff', '#ff9800', '#9c27b0', '#4caf50', '#f44336', '#795548', '#00bcd4']
-
-        for idx, (c, d, b, sign) in enumerate(lines):
-            Y = (b - c * X) / d
-            ax.plot(X, Y, label=f"{c:.2f} * x + {d:.2f} * y {sign} {b:.2f}", color=colors[idx % len(colors)], linewidth=1.8)
-            if sign == "≤":
-                ax.fill_between(X, Y, -100, color=colors[idx % len(colors)], alpha=0.12)
-            elif sign == "≥":
-                ax.fill_between(X, Y, 100, color=colors[idx % len(colors)], alpha=0.12)
+        fig, ax = plt.subplots(figsize=(6, 4.3))
+        colors=['#007bff','#ff9800','#9c27b0','#4caf50','#f44336','#795548','#00bcd4']
+        for i,(c,d,b,sign) in enumerate(lines):
+            Y=(b-c*X)/d
+            ax.plot(X,Y,label=f"{c:.2f}x + {d:.2f}y {sign} {b:.2f}",color=colors[i%len(colors)],lw=1.4)
+            if sign=="≤": ax.fill_between(X,Y,-100,color=colors[i%len(colors)],alpha=0.12)
+            elif sign=="≥": ax.fill_between(X,Y,100,color=colors[i%len(colors)],alpha=0.12)
 
         if feasible:
-            ax.scatter(*zip(*feasible), color="red", s=30, label="Угловые точки")
-            ax.scatter(opt_x, opt_y, color="gold", edgecolor="black", s=100, label="⭐ Оптимум")
-            ax.text(opt_x - 1, opt_y - 0.7, f"({opt_x:.2f}, {opt_y:.2f})", color="orange", fontsize=8)
-
-            if abs(a2) > 1e-8:
-                ax.plot(X, (z_opt - a1 * X) / a2, "k--", linewidth=1.2,
-                        label=f"Целевая прямая: {a1:.2f}x + {a2:.2f}y = {z_opt:.2f}")
-
-        ax.set_xlim(-15, 15)
-        ax.set_ylim(-15, 20)
-        ax.set_xlabel("x", fontsize=9)
-        ax.set_ylabel("y", fontsize=9)
-        ax.legend(fontsize=8)
-        ax.grid(True, linestyle="--", alpha=0.5)
+            ax.scatter(*zip(*feasible),color="red",s=25,label="Угловые точки")
+            ax.scatter(opt_x,opt_y,color="gold",edgecolor="black",s=70,label="⭐ Оптимум")
+            ax.text(opt_x-1,opt_y-0.6,f"({opt_x:.2f}, {opt_y:.2f})",fontsize=7,color="orange")
+            if abs(a2)>1e-8:
+                ax.plot(X,(z_opt-a1*X)/a2,"k--",lw=1,label=f"{a1:.2f}x+{a2:.2f}y={z_opt:.2f}")
+        ax.set_xlim(-15,15); ax.set_ylim(-15,20)
+        ax.set_xlabel("x",fontsize=8); ax.set_ylabel("y",fontsize=8)
+        ax.legend(fontsize=7); ax.grid(True,linestyle="--",alpha=0.4)
         st.pyplot(fig)
         st.markdown("</div>", unsafe_allow_html=True)
