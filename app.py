@@ -3,7 +3,7 @@ import numpy as np
 import plotly.graph_objects as go
 from itertools import combinations
 
-# Sahifa sozlamalari
+# --- Sahifa sozlamalari ---
 st.set_page_config(page_title="Линейное программирование — Решатель", layout="wide")
 
 # --- Sidebar (chap panel) ---
@@ -20,8 +20,8 @@ with st.sidebar:
             {"c": 3.2, "d": -2.0, "sign": "≤", "b": 3.0},
             {"c": 1.6, "d": 2.3, "sign": "≤", "b": -5.0},
         ]
-    if "history" not in st.session_state:
-        st.session_state.history = []  # eski misollar saqlanadigan joy
+    if "results" not in st.session_state:
+        st.session_state.results = []  # tarix: (№, x, y, z)
 
     def add_constraint():
         st.session_state.constraints.append({"c": 1.0, "d": 1.0, "sign": "≤", "b": 0.0})
@@ -57,7 +57,7 @@ with st.sidebar:
     solve = st.button("Решить")
     if st.button("Очистить"):
         st.session_state.constraints = []
-        st.session_state.history = []  # tarixni ham tozalash
+        st.session_state.results = []  # tarixni ham tozalaymiz
         st.experimental_rerun()
 
 # --- Asosiy qism ---
@@ -93,7 +93,7 @@ if solve:
         for (c, d, b, sign) in lines:
             val = c*x + d*y
             if (sign == "≤" and val > b) or (sign == "≥" and val < b) or (sign == "=" and abs(val - b) > 1e-6):
-                ok = False; break
+                ok=False; break
         if ok:
             feas.append((x, y))
 
@@ -101,20 +101,29 @@ if solve:
         z = [a1*x + a2*y for (x, y) in feas]
         best = np.argmax(z) if opt_type=="max" else np.argmin(z)
         ox, oy, zopt = *feas[best], z[best]
+
+        # 🧠 Natijani tarixga yozamiz
+        result_id = len(st.session_state.results) + 1
+        st.session_state.results.append({
+            "№": result_id,
+            "x": round(ox, 3),
+            "y": round(oy, 3),
+            "z": round(zopt, 3),
+            "type": opt_type
+        })
+
     else:
         ox = oy = zopt = None
 
-    # --- Rangli interaktiv grafik ---
+    # --- Grafik (xohlasangiz saqlay qolamiz) ---
     fig = go.Figure()
     colors = ["rgba(0,123,255,0.3)", "rgba(255,152,0,0.3)", "rgba(156,39,176,0.3)",
-              "rgba(76,175,80,0.3)", "rgba(244,67,54,0.3)", "rgba(121,85,72,0.3)",
-              "rgba(0,188,212,0.3)"]
+              "rgba(76,175,80,0.3)", "rgba(244,67,54,0.3)", "rgba(121,85,72,0.3)"]
 
     for i,(c,d,b,sign) in enumerate(lines):
         Y = (b - c*X) / d
         fig.add_trace(go.Scatter(
-            x=X, y=Y,
-            mode="lines",
+            x=X, y=Y, mode="lines",
             line=dict(color=colors[i%len(colors)].replace("0.3","1.0"), width=2),
             fill="tonexty" if sign in ["≤","≥"] else None,
             fillcolor=colors[i%len(colors)],
@@ -122,36 +131,30 @@ if solve:
         ))
 
     if feas:
-        fx, fy = zip(*feas)
-        fig.add_trace(go.Scatter(x=fx, y=fy, mode="markers", marker=dict(color="red", size=8), name="Угловые точки"))
-        fig.add_trace(go.Scatter(
-            x=[ox], y=[oy],
-            mode="markers+text",
-            marker=dict(color="gold", size=12, line=dict(color="black", width=1)),
-            name="⭐ Оптимум",
-            text=[f"({ox:.2f}, {oy:.2f})"],
-            textposition="top center"
-        ))
-        if abs(a2)>1e-8:
-            Yz = (zopt - a1*X)/a2
-            fig.add_trace(go.Scatter(
-                x=X, y=Yz, mode="lines",
-                line=dict(color="black", width=1, dash="dash"),
-                name=f"Целевая прямая: {a1:.2f}x+{a2:.2f}y={zopt:.2f}"
-            ))
+        fig.add_trace(go.Scatter(x=[ox], y=[oy], mode="markers+text",
+                                 text=[f"({ox:.2f},{oy:.2f})"], textposition="top center",
+                                 marker=dict(color="gold", size=12, line=dict(color="black", width=1)),
+                                 name="⭐ Оптимум"))
 
-    fig.update_layout(
-        title=f"График решения #{len(st.session_state.history)+1}",
-        xaxis_title="x", yaxis_title="y",
-        legend=dict(bgcolor="rgba(255,255,255,0.7)", bordercolor="gray", borderwidth=1),
-        height=550, template="plotly_white"
-    )
+    fig.update_layout(title="График решения", xaxis_title="x", yaxis_title="y",
+                      height=500, template="plotly_white")
+    st.plotly_chart(fig, use_container_width=True)
 
-    # --- Yangi grafikni tarixga qo‘shamiz ---
-    st.session_state.history.append(fig)
+# --- Tarix (f(x), f(a) ...) ---
+if st.session_state.results:
+    st.markdown("### 🧮 История решений (значения функции)")
+    results = st.session_state.results
 
-# --- Tarixni ko‘rsatish ---
-if st.session_state.history:
-    st.markdown("### 🕒 История решений")
-    for i, old_fig in enumerate(reversed(st.session_state.history), 1):
-        st.plotly_chart(old_fig, use_container_width=True)
+    for i, res in enumerate(reversed(results)):
+        st.write(f"**f{res['№']}(x, y) = {res['z']}** при (x={res['x']}, y={res['y']})")
+
+    # Solishtirish
+    if len(results) >= 2:
+        last = results[-1]
+        prev = results[-2]
+        if last["z"] > prev["z"]:
+            st.success(f"📈 Новое решение лучше: f{last['№']}({last['x']},{last['y']}) = {last['z']}  >  f{prev['№']}({prev['x']},{prev['y']}) = {prev['z']}")
+        elif last["z"] < prev["z"]:
+            st.error(f"📉 Новое решение хуже: f{last['№']}({last['x']},{last['y']}) = {last['z']}  <  f{prev['№']}({prev['x']},{prev['y']}) = {prev['z']}")
+        else:
+            st.info(f"⚖️ Равные значения: f{last['№']} = f{prev['№']} = {last['z']}")
