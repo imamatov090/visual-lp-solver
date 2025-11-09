@@ -3,16 +3,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 from itertools import combinations
 
-# Sahifa sozlamalari
+# --- Sahifa sozlamalari ---
 st.set_page_config(page_title="Линейное программирование — Решатель", layout="wide")
 
-# --- KICHIK dizayn va joylashuvni sozlash ---
+# --- CSS (tashqi ko‘rinish va joylashuv) ---
 st.markdown("""
     <style>
         .block-container {
             padding-top: 0.3rem;
-            padding-left: 0.5rem; /* CHAPGA YOPISHTIRILDI */
-            max-width: 1180px; /* biroz torroq, shunda hammasi sig‘adi */
+            padding-left: 0rem;
+            padding-right: 0rem;
+            max-width: 1400px; /* kengaytirildi */
         }
         h1 {
             font-size: 1.4rem;
@@ -41,7 +42,7 @@ st.markdown("""
         }
         .graph-box {
             background-color: white;
-            padding: 0.6rem;
+            padding: 0.8rem 1.5rem 0.8rem 1rem; /* ichki joy */
             border-radius: 10px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
@@ -51,7 +52,11 @@ st.markdown("""
         }
         /* CHAP PANELNI CHAPGA SURISH */
         [data-testid="stVerticalBlock"] > div:first-child {
-            margin-left: -20px; /* bu yozuvlarni to‘liq ko‘rsatadi */
+            margin-left: -40px; /* chapga ko‘proq surildi */
+        }
+        /* GRAFIKNI BIROZ O‘NGGA SURISH */
+        [data-testid="stVerticalBlock"] > div:nth-child(2) {
+            margin-right: -20px;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -124,7 +129,7 @@ with col_left:
         st.session_state.constraints = []
         st.experimental_rerun()
 
-# ===== O‘NG PANEL =====
+# ===== O‘NG PANEL (GRAFIK) =====
 with col_right:
     if solve:
         X = np.linspace(-20, 20, 600)
@@ -166,7 +171,7 @@ with col_right:
             opt_x,opt_y,z_opt=None,None,None
 
         st.markdown("<div class='graph-box'>", unsafe_allow_html=True)
-        fig, ax = plt.subplots(figsize=(6, 4.3))
+        fig, ax = plt.subplots(figsize=(7, 4.3))
         colors=['#007bff','#ff9800','#9c27b0','#4caf50','#f44336','#795548','#00bcd4']
         for i,(c,d,b,sign) in enumerate(lines):
             Y=(b-c*X)/d
