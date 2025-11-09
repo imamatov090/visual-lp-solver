@@ -3,10 +3,8 @@ import numpy as np
 import plotly.graph_objects as go
 from itertools import combinations
 
-# --- Sahifa sozlamalari ---
 st.set_page_config(page_title="Линейное программирование — Решатель", layout="wide")
 
-# --- Sidebar (chap panel) ---
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
     a1 = st.number_input("Коэффициент при x", value=5.3, key="a1")
@@ -21,7 +19,7 @@ with st.sidebar:
             {"c": 1.6, "d": 2.3, "sign": "≤", "b": -5.0},
         ]
     if "results" not in st.session_state:
-        st.session_state.results = []  # tarix: (№, x, y, z)
+        st.session_state.results = []
 
     def add_constraint():
         st.session_state.constraints.append({"c": 1.0, "d": 1.0, "sign": "≤", "b": 0.0})
@@ -57,10 +55,9 @@ with st.sidebar:
     solve = st.button("Решить")
     if st.button("Очистить"):
         st.session_state.constraints = []
-        st.session_state.results = []  # tarixni ham tozalaymiz
+        st.session_state.results = []
         st.experimental_rerun()
 
-# --- Asosiy qism ---
 st.title("📊 Линейное программирование — Решатель")
 
 if solve:
@@ -101,8 +98,6 @@ if solve:
         z = [a1*x + a2*y for (x, y) in feas]
         best = np.argmax(z) if opt_type=="max" else np.argmin(z)
         ox, oy, zopt = *feas[best], z[best]
-
-        # 🧠 Natijani tarixga yozamiz
         result_id = len(st.session_state.results) + 1
         st.session_state.results.append({
             "№": result_id,
@@ -115,7 +110,6 @@ if solve:
     else:
         ox = oy = zopt = None
 
-    # --- Grafik (xohlasangiz saqlay qolamiz) ---
     fig = go.Figure()
     colors = ["rgba(0,123,255,0.3)", "rgba(255,152,0,0.3)", "rgba(156,39,176,0.3)",
               "rgba(76,175,80,0.3)", "rgba(244,67,54,0.3)", "rgba(121,85,72,0.3)"]
@@ -140,21 +134,22 @@ if solve:
                       height=500, template="plotly_white")
     st.plotly_chart(fig, use_container_width=True)
 
-# --- Tarix (f(x), f(a) ...) ---
 if st.session_state.results:
     st.markdown("### 🧮 История решений (значения функции)")
+
     results = st.session_state.results
-
     for i, res in enumerate(reversed(results)):
-        st.write(f"**f{res['№']}(x, y) = {res['z']}** при (x={res['x']}, y={res['y']})")
+        st.latex(fr"f_{{{res['№']}}}(x, y) = {res['z']} \quad \text{{при}} \quad x={res['x']}, \; y={res['y']}")
 
-    # Solishtirish
     if len(results) >= 2:
         last = results[-1]
         prev = results[-2]
         if last["z"] > prev["z"]:
-            st.success(f"📈 Новое решение лучше: f{last['№']}({last['x']},{last['y']}) = {last['z']}  >  f{prev['№']}({prev['x']},{prev['y']}) = {prev['z']}")
+            st.success(f"📈 Новое решение лучше:")
+            st.latex(fr"f_{{{last['№']}}}({last['x']},{last['y']}) = {last['z']} \; > \; f_{{{prev['№']}}}({prev['x']},{prev['y']}) = {prev['z']}")
         elif last["z"] < prev["z"]:
-            st.error(f"📉 Новое решение хуже: f{last['№']}({last['x']},{last['y']}) = {last['z']}  <  f{prev['№']}({prev['x']},{prev['y']}) = {prev['z']}")
+            st.error(f"📉 Новое решение хуже:")
+            st.latex(fr"f_{{{last['№']}}}({last['x']},{last['y']}) = {last['z']} \; < \; f_{{{prev['№']}}}({prev['x']},{prev['y']}) = {prev['z']}")
         else:
-            st.info(f"⚖️ Равные значения: f{last['№']} = f{prev['№']} = {last['z']}")
+            st.info(f"⚖️ Значения равны:")
+            st.latex(fr"f_{{{last['№']}}} = f_{{{prev['№']}}} = {last['z']}")
