@@ -109,14 +109,12 @@ if solve:
             "z": round(zopt, 3),
             "type": opt_type
         })
-
     else:
         ox = oy = zopt = None
 
     # --- Grafik ---
     fig = go.Figure()
     colors = ["green", "red", "blue", "orange", "purple"]
-    fills = ["rgba(0,255,0,0.15)", "rgba(255,0,0,0.1)", "rgba(0,0,255,0.1)"]
 
     for i,(c,d,b,sign) in enumerate(lines):
         Y = (b - c*X) / d
@@ -134,7 +132,12 @@ if solve:
     # Feasible soha (agar topilgan bo‘lsa)
     if feas:
         feas_poly = np.array(feas)
-        hull = feas_poly[np.argsort(np.arctan2(feas_poly[:,1]-np.mean(feas_poly[:,1]), feas_poly[:,0]-np.mean(feas_poly[:,0]))]
+        hull = feas_poly[np.argsort(
+            np.arctan2(
+                feas_poly[:,1] - np.mean(feas_poly[:,1]),
+                feas_poly[:,0] - np.mean(feas_poly[:,0])
+            )
+        )]   # ✅ Qavslar to‘g‘rilangan
         fig.add_trace(go.Scatter(
             x=hull[:,0], y=hull[:,1],
             fill="toself", fillcolor="rgba(0,150,255,0.2)",
