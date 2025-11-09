@@ -6,7 +6,7 @@ from itertools import combinations
 # --- Sahifa sozlamalari ---
 st.set_page_config(page_title="Линейное программирование — Решатель", layout="wide")
 
-# --- Chap panel (sidebar) ---
+# --- Chap panel ---
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
     a1 = st.number_input("Коэффициент при x", value=5.3, key="a1")
@@ -17,15 +17,16 @@ with st.sidebar:
 
     if "constraints" not in st.session_state:
         st.session_state.constraints = [
-            {"c": 3.2, "d": -2.0, "sign": "=", "b": 3.0},
+            {"c": 3.2, "d": -2.0, "sign": "≤", "b": 3.0},
             {"c": 1.6, "d": 2.3, "sign": "≤", "b": -5.0},
             {"c": 3.2, "d": -6.0, "sign": "≥", "b": 7.0},
             {"c": 7.0, "d": -2.0, "sign": "≤", "b": 10.0},
-            {"c": -6.5, "d": 3.0, "sign": "≤", "b": 9.0}
+            {"c": -6.5, "d": 3.0, "sign": "≤", "b": 9.0},
         ]
 
     def add_constraint():
         st.session_state.constraints.append({"c": 1.0, "d": 1.0, "sign": "≤", "b": 0.0})
+
     def remove_constraint(i):
         st.session_state.constraints.pop(i)
 
@@ -74,11 +75,11 @@ if solve:
 
     def intersect(l1, l2):
         (a1, b1, c1, _), (a2, b2, c2, _) = l1, l2
-        det = a1*b2 - a2*b1
+        det = a1 * b2 - a2 * b1
         if abs(det) < 1e-8:
             return None
-        x = (c1*b2 - c2*b1)/det
-        y = (a1*c2 - a2*c1)/det
+        x = (c1 * b2 - c2 * b1) / det
+        y = (a1 * c2 - a2 * c1) / det
         return (x, y)
 
     pts = []
@@ -91,67 +92,94 @@ if solve:
     for (x, y) in pts:
         ok = True
         for (c, d, b, sign) in lines:
-            val = c*x + d*y
-            if (sign == "≤" and val > b) or (sign == "≥" and val < b) or (sign == "=" and abs(val - b) > 1e-6):
+            val = c * x + d * y
+            if (sign == "≤" and val > b) or (sign == "≥" and val < b) or (
+                sign == "=" and abs(val - b) > 1e-6
+            ):
                 ok = False
                 break
         if ok:
             feas.append((x, y))
 
     if feas:
-        z = [a1*x + a2*y for (x, y) in feas]
+        z = [a1 * x + a2 * y for (x, y) in feas]
         best = np.argmax(z) if opt_type == "max" else np.argmin(z)
         ox, oy, zopt = *feas[best], z[best]
     else:
         ox = oy = zopt = None
 
-    # --- Interaktiv grafik ---
+    # --- Rangli interaktiv grafik ---
     fig = go.Figure()
-    colors = ['#007bff','#ff9800','#9c27b0','#4caf50','#f44336','#795548','#00bcd4']
+    colors = [
+        "rgba(0,123,255,0.3)",
+        "rgba(255,152,0,0.3)",
+        "rgba(156,39,176,0.3)",
+        "rgba(76,175,80,0.3)",
+        "rgba(244,67,54,0.3)",
+        "rgba(121,85,72,0.3)",
+        "rgba(0,188,212,0.3)",
+    ]
 
     for i, (c, d, b, sign) in enumerate(lines):
-        Y = (b - c*X) / d
-        fig.add_trace(go.Scatter(
-            x=X, y=Y,
-            mode='lines',
-            line=dict(color=colors[i % len(colors)], width=2),
-            name=f"{c:.2f} * x + {d:.2f} * y {sign} {b:.2f}",
-            hoverinfo="x+y+name"
-        ))
+        Y = (b - c * X) / d
+        fill_to = "tonexty" if sign == "≤" else "none"
+        fig.add_trace(
+            go.Scatter(
+                x=X,
+                y=Y,
+                mode="lines",
+                line=dict(color=colors[i % len(colors)].replace("0.3", "1.0"), width=2),
+                fill="tonexty" if sign in ["≤", "≥"] else None,
+                fillcolor=colors[i % len(colors)],
+                name=f"{c:.2f} * x + {d:.2f} * y {sign} {b:.2f}",
+                hoverinfo="x+y+name",
+            )
+        )
 
     if feas:
         fx, fy = zip(*feas)
-        fig.add_trace(go.Scatter(
-            x=fx, y=fy,
-            mode='markers',
-            marker=dict(color='red', size=8),
-            name="Угловые точки",
-            hovertemplate="x=%{x:.2f}<br>y=%{y:.2f}"
-        ))
-        fig.add_trace(go.Scatter(
-            x=[ox], y=[oy],
-            mode='markers+text',
-            marker=dict(color='gold', size=12, line=dict(color='black', width=1)),
-            name='⭐ Оптимум',
-            text=[f"({ox:.2f}, {oy:.2f})"],
-            textposition='top center'
-        ))
+        fig.add_trace(
+            go.Scatter(
+                x=fx,
+                y=fy,
+                mode="markers",
+                marker=dict(color="red", size=8),
+                name="Угловые точки",
+                hovertemplate="x=%{x:.2f}<br>y=%{y:.2f}",
+            )
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=[ox],
+                y=[oy],
+                mode="markers+text",
+                marker=dict(
+                    color="gold", size=12, line=dict(color="black", width=1)
+                ),
+                name="⭐ Оптимум",
+                text=[f"({ox:.2f}, {oy:.2f})"],
+                textposition="top center",
+            )
+        )
         if abs(a2) > 1e-8:
-            Yz = (zopt - a1*X) / a2
-            fig.add_trace(go.Scatter(
-                x=X, y=Yz,
-                mode='lines',
-                line=dict(color='black', width=1, dash='dash'),
-                name=f"Целевая прямая: {a1:.2f} * x + {a2:.2f} * y = {zopt:.2f}"
-            ))
+            Yz = (zopt - a1 * X) / a2
+            fig.add_trace(
+                go.Scatter(
+                    x=X,
+                    y=Yz,
+                    mode="lines",
+                    line=dict(color="black", width=1, dash="dash"),
+                    name=f"Целевая прямая: {a1:.2f} * x + {a2:.2f} * y = {zopt:.2f}",
+                )
+            )
 
     fig.update_layout(
-        title="График решения (интерактивный)",
+        title="График решения (с цветными областями)",
         xaxis_title="x",
         yaxis_title="y",
         legend=dict(bgcolor="rgba(255,255,255,0.7)", bordercolor="gray", borderwidth=1),
         height=550,
-        template="plotly_white"
+        template="plotly_white",
     )
 
     st.plotly_chart(fig, use_container_width=True)
