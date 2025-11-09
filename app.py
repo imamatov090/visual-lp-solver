@@ -1,6 +1,6 @@
 import streamlit as st
 import numpy as np
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 from itertools import combinations
 
 # --- Sahifa sozlamalari ---
@@ -11,7 +11,6 @@ with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
     a1 = st.number_input("Коэффициент при x", value=5.3, key="a1")
     a2 = st.number_input("Коэффициент при y", value=-7.1, key="a2")
-
     opt_type = st.radio("Тип оптимизации:", ["max", "min"], horizontal=True)
 
     st.markdown("### ✏️ Ограничения")
@@ -27,7 +26,6 @@ with st.sidebar:
 
     def add_constraint():
         st.session_state.constraints.append({"c": 1.0, "d": 1.0, "sign": "≤", "b": 0.0})
-
     def remove_constraint(i):
         st.session_state.constraints.pop(i)
 
@@ -62,7 +60,7 @@ with st.sidebar:
         st.session_state.constraints = []
         st.experimental_rerun()
 
-# --- O‘ng tomon (asosiy qism) ---
+# --- Asosiy qism ---
 st.title("📊 Линейное программирование — Решатель")
 
 if solve:
@@ -107,42 +105,53 @@ if solve:
     else:
         ox = oy = zopt = None
 
-    # --- Grafik chizamiz ---
-    fig, ax = plt.subplots(figsize=(7, 4.5))
+    # --- Interaktiv grafik ---
+    fig = go.Figure()
     colors = ['#007bff','#ff9800','#9c27b0','#4caf50','#f44336','#795548','#00bcd4']
 
     for i, (c, d, b, sign) in enumerate(lines):
         Y = (b - c*X) / d
-        ax.plot(X, Y, color=colors[i % len(colors)], lw=1.4,
-                label=f"{c:.2f} * x + {d:.2f} * y {sign} {b:.2f}")
-        if sign == "≤":
-            ax.fill_between(X, Y, -100, color=colors[i % len(colors)], alpha=.12)
-        elif sign == "≥":
-            ax.fill_between(X, Y, 100, color=colors[i % len(colors)], alpha=.12)
+        fig.add_trace(go.Scatter(
+            x=X, y=Y,
+            mode='lines',
+            line=dict(color=colors[i % len(colors)], width=2),
+            name=f"{c:.2f} * x + {d:.2f} * y {sign} {b:.2f}",
+            hoverinfo="x+y+name"
+        ))
 
     if feas:
-        ax.scatter(*zip(*feas), c="red", s=25, label="Угловые точки")
-        ax.scatter(ox, oy, c="gold", edgecolor="black", s=70, label="⭐ Оптимум")
-        ax.text(ox - 1, oy - .6, f"({ox:.2f}, {oy:.2f})", fontsize=7, color="orange")
+        fx, fy = zip(*feas)
+        fig.add_trace(go.Scatter(
+            x=fx, y=fy,
+            mode='markers',
+            marker=dict(color='red', size=8),
+            name="Угловые точки",
+            hovertemplate="x=%{x:.2f}<br>y=%{y:.2f}"
+        ))
+        fig.add_trace(go.Scatter(
+            x=[ox], y=[oy],
+            mode='markers+text',
+            marker=dict(color='gold', size=12, line=dict(color='black', width=1)),
+            name='⭐ Оптимум',
+            text=[f"({ox:.2f}, {oy:.2f})"],
+            textposition='top center'
+        ))
         if abs(a2) > 1e-8:
-            ax.plot(X, (zopt - a1*X) / a2, "k--", lw=1,
-                    label=f"Целевая прямая: {a1:.2f} * x + {a2:.2f} * y = {zopt:.2f}")
+            Yz = (zopt - a1*X) / a2
+            fig.add_trace(go.Scatter(
+                x=X, y=Yz,
+                mode='lines',
+                line=dict(color='black', width=1, dash='dash'),
+                name=f"Целевая прямая: {a1:.2f} * x + {a2:.2f} * y = {zopt:.2f}"
+            ))
 
-    ax.set_xlim(-15, 15)
-    ax.set_ylim(-15, 20)
-    ax.set_xlabel("x", fontsize=8)
-    ax.set_ylabel("y", fontsize=8)
-    ax.grid(True, ls="--", alpha=.4)
-
-    # --- Eng muhim qism: yozuvlar to‘liq chiqishi uchun ---
-    ax.legend(
-        fontsize=7,
-        loc="upper left",
-        bbox_to_anchor=(0, 1.02),
-        frameon=True,
-        fancybox=True,
-        shadow=True
+    fig.update_layout(
+        title="График решения (интерактивный)",
+        xaxis_title="x",
+        yaxis_title="y",
+        legend=dict(bgcolor="rgba(255,255,255,0.7)", bordercolor="gray", borderwidth=1),
+        height=550,
+        template="plotly_white"
     )
 
-    ax.set_title("График решения", fontsize=10, weight="bold", pad=15)
-    st.pyplot(fig)
+    st.plotly_chart(fig, use_container_width=True)
