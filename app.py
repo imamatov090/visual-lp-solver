@@ -16,6 +16,11 @@ h1 {
     font-size: 1.3rem;
     text-align: center;
 }
+.left-panel {
+    transform: scale(0.85);
+    transform-origin: top left;
+    width: 118%;
+}
 .stNumberInput > div > div > input {
     width: 55px !important;
     font-size: 0.75rem !important;
@@ -69,12 +74,13 @@ h1 {
 st.markdown("<h1>📊 Линейное программирование — Решатель</h1>", unsafe_allow_html=True)
 st.caption("Интерактивная визуализация и решение задач линейного программирования (2 переменные)")
 
-# ✅ Chap panelni biroz tor, o‘ng panelni baland qilish
-col_left, col_right = st.columns([0.9, 1.5], gap="large")
+# ✅ Chap panel kichraytirilgan, o‘ng panel grafik baland
+col_left, col_right = st.columns([1, 1.5], gap="large")
 
 # === LEFT PANEL ===
 with col_left:
-    st.markdown('<div class="stCard" style="zoom:0.9;">', unsafe_allow_html=True)
+    st.markdown('<div class="left-panel">', unsafe_allow_html=True)
+    st.markdown('<div class="stCard">', unsafe_allow_html=True)
     st.markdown("### 🎯 Целевая функция")
     c1, c2, c3 = st.columns([1, 0.3, 1])
     with c1:
@@ -87,7 +93,7 @@ with col_left:
     opt_type = st.radio("Тип оптимизации:", ["max", "min"], horizontal=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="stCard" style="zoom:0.9;">', unsafe_allow_html=True)
+    st.markdown('<div class="stCard">', unsafe_allow_html=True)
     st.markdown("### ✏️ Ограничения")
 
     if "constraints" not in st.session_state:
@@ -132,7 +138,7 @@ with col_left:
     if clear:
         st.session_state.constraints = []
         st.experimental_rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div></div>', unsafe_allow_html=True)
 
 # === RIGHT PANEL ===
 with col_right:
