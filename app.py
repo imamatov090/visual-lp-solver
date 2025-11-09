@@ -5,7 +5,7 @@ from itertools import combinations
 
 st.set_page_config(page_title="Линейное программирование — Решатель", layout="wide")
 
-# --- CSS ---
+# --- CSS (dizayn) ---
 st.markdown("""
 <style>
 .block-container {
@@ -32,10 +32,22 @@ h1 {
 .stButton>button:hover {
     background-color: #0056b3;
 }
-[data-testid="stVerticalBlock"] > div:first-child {
-    margin-left: -30px;
+/* 🔹 Trash icon (Удалить) tugmasi */
+.trash-btn {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    font-size: 15px;
+    text-align: center;
 }
-/* Card style */
+.trash-btn:hover {
+    background-color: #cc0000;
+}
+/* 🔹 Card style */
 .stCard {
     background-color: #ffffff;
     border-radius: 10px;
@@ -56,11 +68,16 @@ col_left, col_right = st.columns([1, 1.8])
 with col_left:
     st.markdown('<div class="stCard">', unsafe_allow_html=True)
     st.markdown("### 🎯 Целевая функция")
-    c1, c2, c3, c4 = st.columns([1, 0.3, 1, 0.6])
-    with c1: a1 = st.number_input("", value=5.3, key="a1")
-    with c2: st.markdown("*x +*")
-    with c3: a2 = st.number_input("", value=-7.1, key="a2")
-    with c4: opt_type = st.selectbox("", ["max", "min"], key="opt")
+    c1, c2, c3 = st.columns([1, 0.3, 1])
+    with c1:
+        a1 = st.number_input("", value=5.3, key="a1")
+    with c2:
+        st.markdown("*x +*")
+    with c3:
+        a2 = st.number_input("", value=-7.1, key="a2")
+
+    # 🔹 min / max tanlashni radio tugma bilan chiroyli qilib chiqaramiz
+    opt_type = st.radio("Тип оптимизации:", ["max", "min"], horizontal=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown('<div class="stCard">', unsafe_allow_html=True)
@@ -81,13 +98,13 @@ with col_left:
         st.session_state.constraints.pop(i)
 
     for i, cons in enumerate(st.session_state.constraints):
-        cols = st.columns([1, 0.3, 1, 0.5, 1, 0.7, 0.2])
+        cols = st.columns([1, 0.3, 1, 0.5, 1, 0.7, 0.3])
         with cols[0]: cons["c"] = st.number_input("", value=cons["c"], key=f"c{i}")
         with cols[1]: st.markdown("*x +*")
         with cols[2]: cons["d"] = st.number_input("", value=cons["d"], key=f"d{i}")
         with cols[3]: st.markdown("*y*")
 
-        # 🔹 Belgilarni radio ko‘rinishida chiqaramiz (katta va aniq ko‘rinadi)
+        # 🔹 belgilar radio tarzda (≤ ≥ =)
         with cols[4]:
             cons["sign"] = st.radio(
                 "", ["≤", "≥", "="],
@@ -96,7 +113,12 @@ with col_left:
                 key=f"sign{i}"
             )
         with cols[5]: cons["b"] = st.number_input("", value=cons["b"], key=f"b{i}")
-        with cols[6]: st.button("🗑", key=f"del{i}", on_click=remove_constraint, args=(i,))
+
+        # 🔹 “Удалить” tugmasi (zamonaviy qizil dumaloq)
+        with cols[6]:
+            if st.button("🗑", key=f"del{i}", use_container_width=True):
+                remove_constraint(i)
+                st.experimental_rerun()
 
     st.button("+ Добавить", on_click=add_constraint)
     cA, cB, cC = st.columns(3)
