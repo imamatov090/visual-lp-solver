@@ -2,20 +2,51 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 from itertools import combinations
-from fpdf import FPDF
 
-st.set_page_config(page_title="Линейное программирование — Решатель", layout="wide")
+# Streamlit sahifa sozlamalari
+st.set_page_config(page_title="📊 Линейное программирование — Решатель", layout="wide")
 
-# --- Заголовок ---
-st.markdown("<h1 style='text-align: center;'>📊 Линейное программирование — Решатель</h1>", unsafe_allow_html=True)
-st.caption("Визуализация и решение задачи линейного программирования (2 переменные)")
+# --- CSS chiroyli ko'rinish uchun ---
+st.markdown("""
+    <style>
+        body { background-color: #f8f9fa; }
+        .stApp { background-color: #f8f9fa; }
+        div[data-testid="stVerticalBlock"] { gap: 1rem; }
+        .block-container { padding-top: 1rem; padding-bottom: 0rem; }
+        h1, h3 { color: #2c3e50; }
+        .stButton button {
+            background-color: #007bff;
+            color: white;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            border: none;
+        }
+        .stButton button:hover {
+            background-color: #0056b3;
+            color: #fff;
+        }
+        .stTextInput>div>div>input, .stNumberInput>div>div>input {
+            border-radius: 8px;
+        }
+        .graph-box {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0px 3px 10px rgba(0,0,0,0.1);
+        }
+    </style>
+""", unsafe_allow_html=True)
 
-# --- Колонки (левая панель и правая панель) ---
-col_left, col_right = st.columns([1, 2])  # 1/3 ширины на форму, 2/3 на график
+# --- Sarlavha ---
+st.markdown("<h1 style='text-align:center;'>📈 Линейное программирование — Решатель</h1>", unsafe_allow_html=True)
+st.caption("Интерактивная визуализация задачи линейного программирования (2 переменные)")
 
-# ========== ЛЕВАЯ ПАНЕЛЬ ==========
+# --- Chap va o‘ng ustunlar ---
+col_left, col_right = st.columns([1, 2])  # chap: 1 qism, o‘ng: 2 qism
+
+# ===== CHAP PANEL =====
 with col_left:
-    st.markdown("### Целевая функция")
+    st.markdown("### 🎯 Целевая функция")
     col1, col2, col3, col4 = st.columns([1, 0.3, 1, 0.7])
     with col1:
         a1 = st.number_input("", value=5.3, key="a1")
@@ -26,7 +57,7 @@ with col_left:
     with col4:
         opt_type = st.selectbox("", ["max", "min"], key="opt")
 
-    st.markdown("### Ограничения")
+    st.markdown("### 📏 Ограничения")
 
     if "constraints" not in st.session_state:
         st.session_state.constraints = [
@@ -64,7 +95,7 @@ with col_left:
     st.markdown("<p style='font-size: 13px; color: gray;'>Коэффициенты можно вводить целыми или дробными (запятая/точка).</p>", unsafe_allow_html=True)
 
     colA, colB, colC = st.columns([1, 1, 1])
-    solve = colA.button("Решить", type="primary")
+    solve = colA.button("Решить")
     clear = colB.button("Очистить")
     export_pdf = colC.button("Скачать отчёт (PDF)")
 
@@ -72,7 +103,7 @@ with col_left:
         st.session_state.constraints = []
         st.experimental_rerun()
 
-# ========== ПРАВАЯ ПАНЕЛЬ (ГРАФИК) ==========
+# ===== O‘NG PANEL (grafik) =====
 with col_right:
     if solve:
         X = np.linspace(-20, 20, 600)
@@ -112,35 +143,41 @@ with col_right:
 
         if feasible:
             z_values = [a1 * x + a2 * y for (x, y) in feasible]
-            if opt_type == "max":
-                best_idx = np.argmax(z_values)
-            else:
-                best_idx = np.argmin(z_values)
+            best_idx = np.argmax(z_values) if opt_type == "max" else np.argmin(z_values)
             opt_x, opt_y = feasible[best_idx]
             z_opt = z_values[best_idx]
         else:
             opt_x, opt_y, z_opt = None, None, None
 
-        st.markdown("### График решения")
-        fig, ax = plt.subplots(figsize=(9, 7))
-        colors = ['blue', 'orange', 'purple', 'green', 'red', 'brown', 'magenta', 'cyan', 'olive']
+        with st.container():
+            st.markdown("<div class='graph-box'>", unsafe_allow_html=True)
+            st.markdown("### 📉 График решения")
 
-        for idx, (c, d, b, sign) in enumerate(lines):
-            Y = (b - c * X) / d
-            ax.plot(X, Y, label=f"{c:.2f} * x + {d:.2f} * y {sign} {b:.2f}", color=colors[idx % len(colors)])
+            fig, ax = plt.subplots(figsize=(9, 7))
+            colors = ['#007bff', '#ff9800', '#9c27b0', '#4caf50', '#f44336', '#795548', '#00bcd4']
 
-        if feasible:
-            ax.scatter(*zip(*feasible), color="red", label="Угловые точки")
-            ax.scatter(opt_x, opt_y, color="gold", edgecolor="black", s=200, label="⭐ Оптимум")
-            ax.text(opt_x - 2, opt_y - 1, f"Оптимум ({opt_x:.2f}, {opt_y:.2f})", color="orange")
+            # Chiziqlarni chizish va sohalarni to‘ldirish
+            for idx, (c, d, b, sign) in enumerate(lines):
+                Y = (b - c * X) / d
+                ax.plot(X, Y, label=f"{c:.2f} * x + {d:.2f} * y {sign} {b:.2f}", color=colors[idx % len(colors)], linewidth=2)
+                if sign == "≤":
+                    ax.fill_between(X, Y, -100, color=colors[idx % len(colors)], alpha=0.15)
+                elif sign == "≥":
+                    ax.fill_between(X, Y, 100, color=colors[idx % len(colors)], alpha=0.15)
 
-            if abs(a2) > 1e-8:
-                ax.plot(X, (z_opt - a1 * X) / a2, "k--", label=f"Целевая прямая: {a1:.2f} * x + {a2:.2f} * y = {z_opt:.2f}")
+            if feasible:
+                ax.scatter(*zip(*feasible), color="red", label="Угловые точки")
+                ax.scatter(opt_x, opt_y, color="gold", edgecolor="black", s=200, label="⭐ Оптимум")
+                ax.text(opt_x - 2, opt_y - 1, f"Оптимум ({opt_x:.2f}, {opt_y:.2f})", color="orange")
 
-        ax.set_xlim(-15, 15)
-        ax.set_ylim(-15, 20)
-        ax.set_xlabel("x")
-        ax.set_ylabel("y")
-        ax.legend()
-        ax.grid(True, linestyle="--", alpha=0.5)
-        st.pyplot(fig)
+                if abs(a2) > 1e-8:
+                    ax.plot(X, (z_opt - a1 * X) / a2, "k--", label=f"Целевая прямая: {a1:.2f}x + {a2:.2f}y = {z_opt:.2f}")
+
+            ax.set_xlim(-15, 15)
+            ax.set_ylim(-15, 20)
+            ax.set_xlabel("x")
+            ax.set_ylabel("y")
+            ax.legend()
+            ax.grid(True, linestyle="--", alpha=0.5)
+            st.pyplot(fig)
+            st.markdown("</div>", unsafe_allow_html=True)
