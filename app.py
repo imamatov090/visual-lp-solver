@@ -5,12 +5,12 @@ from itertools import combinations
 
 st.set_page_config(page_title="Линейное программирование — Решатель", layout="wide")
 
-# --- CSS (dizayn) ---
+# --- CSS dizayn ---
 st.markdown("""
 <style>
 .block-container {
     padding-top: 0.5rem;
-    max-width: 1300px;
+    max-width: 1400px;
 }
 h1 {
     font-size: 1.4rem;
@@ -32,7 +32,7 @@ h1 {
 .stButton>button:hover {
     background-color: #0056b3;
 }
-/* 🔹 Trash icon (Удалить) tugmasi */
+/* 🔹 Trash icon */
 .trash-btn {
     background-color: #ff4d4d;
     color: white;
@@ -55,6 +55,10 @@ h1 {
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
     margin-bottom: 10px;
 }
+/* 🔹 Tenglashtirish: panel balandliklarini to‘g‘rilash */
+[data-testid="stHorizontalBlock"] {
+    align-items: flex-start !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -62,7 +66,8 @@ h1 {
 st.markdown("<h1>📊 Линейное программирование — Решатель</h1>", unsafe_allow_html=True)
 st.caption("Интерактивная визуализация и решение задач линейного программирования (2 переменные)")
 
-col_left, col_right = st.columns([1, 1.8])
+# ✅ Chap va o‘ng panelni proporsional qilish
+col_left, col_right = st.columns([1.1, 1.4], gap="large")
 
 # === LEFT PANEL ===
 with col_left:
@@ -76,7 +81,6 @@ with col_left:
     with c3:
         a2 = st.number_input("", value=-7.1, key="a2")
 
-    # 🔹 min / max tanlashni radio tugma bilan chiroyli qilib chiqaramiz
     opt_type = st.radio("Тип оптимизации:", ["max", "min"], horizontal=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -104,7 +108,6 @@ with col_left:
         with cols[2]: cons["d"] = st.number_input("", value=cons["d"], key=f"d{i}")
         with cols[3]: st.markdown("*y*")
 
-        # 🔹 belgilar radio tarzda (≤ ≥ =)
         with cols[4]:
             cons["sign"] = st.radio(
                 "", ["≤", "≥", "="],
@@ -113,8 +116,6 @@ with col_left:
                 key=f"sign{i}"
             )
         with cols[5]: cons["b"] = st.number_input("", value=cons["b"], key=f"b{i}")
-
-        # 🔹 “Удалить” tugmasi (zamonaviy qizil dumaloq)
         with cols[6]:
             if st.button("🗑", key=f"del{i}", use_container_width=True):
                 remove_constraint(i)
@@ -171,7 +172,7 @@ with col_right:
         else:
             opt_x,opt_y,z_opt=None,None,None
 
-        fig, ax = plt.subplots(figsize=(7, 4.3))
+        fig, ax = plt.subplots(figsize=(7.5, 4.5))
         colors=['#007bff','#ff9800','#9c27b0','#4caf50','#f44336','#795548','#00bcd4']
         for i,(c,d,b,sign) in enumerate(lines):
             Y=(b-c*X)/d
