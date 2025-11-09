@@ -6,29 +6,29 @@ from itertools import combinations
 # --- Sahifa sozlamalari ---
 st.set_page_config(page_title="Линейное программирование — Решатель", layout="wide")
 
-# --- CSS (tashqi ko‘rinish va joylashuv) ---
+# --- CSS (tashqi ko‘rinish) ---
 st.markdown("""
     <style>
         .block-container {
             padding-top: 0.3rem;
-            padding-left: 0rem;
-            padding-right: 0rem;
-            max-width: 1400px; /* kengaytirildi */
+            max-width: 1300px; /* sahifa eni */
         }
         h1 {
             font-size: 1.4rem;
-            margin-bottom: 0.3rem;
             text-align: center;
         }
         h3 {
             font-size: 1rem;
         }
-        label {
-            font-size: 0.8rem;
+        .stNumberInput > div > div > input {
+            width: 60px !important;
+            font-size: 0.8rem !important;
+            padding: 2px 3px !important;
         }
-        .stNumberInput>div>div>input, .stSelectbox>div>div>select {
-            height: 26px;
-            font-size: 0.8rem;
+        .stSelectbox > div > div > select {
+            height: 26px !important;
+            font-size: 0.8rem !important;
+            padding: 0px 4px !important;
         }
         .stButton>button {
             padding: 0.25rem 0.6rem;
@@ -40,23 +40,13 @@ st.markdown("""
         .stButton>button:hover {
             background-color: #0056b3;
         }
-        .graph-box {
-            background-color: white;
-            padding: 0.8rem 1.5rem 0.8rem 1rem; /* ichki joy */
-            border-radius: 10px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
         .caption-text {
             font-size: 0.75rem;
             color: gray;
         }
-        /* CHAP PANELNI CHAPGA SURISH */
+        /* CHAP PANELNI CHAPGA YAQIN QILISH */
         [data-testid="stVerticalBlock"] > div:first-child {
-            margin-left: -40px; /* chapga ko‘proq surildi */
-        }
-        /* GRAFIKNI BIROZ O‘NGGA SURISH */
-        [data-testid="stVerticalBlock"] > div:nth-child(2) {
-            margin-right: -20px;
+            margin-left: -30px;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -65,25 +55,24 @@ st.markdown("""
 st.markdown("<h1>📊 Линейное программирование — Решатель</h1>", unsafe_allow_html=True)
 st.caption("Интерактивная визуализация задачи линейного программирования (2 переменные)")
 
-# --- chap va o‘ng ustunlar (30% / 70%) ---
-col_left, col_right = st.columns([0.8, 2])
+# --- ustunlar ---
+col_left, col_right = st.columns([1, 1.8])
 
 # ===== CHAP PANEL =====
 with col_left:
     st.markdown("### 🎯 Целевая функция")
-    col1, col2, col3, col4 = st.columns([1, 0.2, 1, 0.6])
-    with col1:
+    c1, c2, c3, c4 = st.columns([1, 0.3, 1, 0.6])
+    with c1:
         a1 = st.number_input("", value=5.3, key="a1")
-    with col2:
+    with c2:
         st.markdown("*x +*")
-    with col3:
+    with c3:
         a2 = st.number_input("", value=-7.1, key="a2")
-    with col4:
+    with c4:
         opt_type = st.selectbox("", ["max", "min"], key="opt")
 
     st.markdown("### ✏️ Ограничения")
 
-    # Dastlabki shartlar
     if "constraints" not in st.session_state:
         st.session_state.constraints = [
             {"c": 3.2, "d": -2.0, "sign": "=", "b": 3.0},
@@ -95,12 +84,12 @@ with col_left:
 
     def add_constraint():
         st.session_state.constraints.append({"c": 1.0, "d": 1.0, "sign": "≤", "b": 0.0})
-
     def remove_constraint(i):
         st.session_state.constraints.pop(i)
 
+    # --- Har bir shart qatori ---
     for i, cons in enumerate(st.session_state.constraints):
-        cols = st.columns([1, 0.2, 1, 0.2, 0.5, 0.5, 0.15])
+        cols = st.columns([1, 0.3, 1, 0.3, 0.7, 0.7, 0.2])
         with cols[0]:
             cons["c"] = st.number_input("", value=cons["c"], key=f"c{i}")
         with cols[1]:
@@ -115,21 +104,21 @@ with col_left:
         with cols[5]:
             cons["b"] = st.number_input("", value=cons["b"], key=f"b{i}")
         with cols[6]:
-            st.button("❌", key=f"del{i}", on_click=remove_constraint, args=(i,))
+            st.button("🗑", key=f"del{i}", on_click=remove_constraint, args=(i,))
 
     st.button("+ Добавить", on_click=add_constraint)
     st.markdown("<p class='caption-text'>Коэффициенты можно вводить целыми или дробными (запятая/точка).</p>", unsafe_allow_html=True)
 
-    colA, colB, colC = st.columns(3)
-    solve = colA.button("Решить")
-    clear = colB.button("Очистить")
-    export_pdf = colC.button("PDF")
+    cA, cB, cC = st.columns(3)
+    solve = cA.button("Решить")
+    clear = cB.button("Очистить")
+    pdf = cC.button("Скачать отчёт (PDF)")
 
     if clear:
         st.session_state.constraints = []
         st.experimental_rerun()
 
-# ===== O‘NG PANEL (GRAFIK) =====
+# ===== O‘NG PANEL =====
 with col_right:
     if solve:
         X = np.linspace(-20, 20, 600)
@@ -148,6 +137,7 @@ with col_right:
             y = (a1*c2 - a2*c1)/det
             return (x, y)
 
+        from itertools import combinations
         points = []
         for l1, l2 in combinations(lines, 2):
             p = intersect(l1, l2)
@@ -170,7 +160,6 @@ with col_right:
         else:
             opt_x,opt_y,z_opt=None,None,None
 
-        st.markdown("<div class='graph-box'>", unsafe_allow_html=True)
         fig, ax = plt.subplots(figsize=(7, 4.3))
         colors=['#007bff','#ff9800','#9c27b0','#4caf50','#f44336','#795548','#00bcd4']
         for i,(c,d,b,sign) in enumerate(lines):
@@ -185,8 +174,8 @@ with col_right:
             ax.text(opt_x-1,opt_y-0.6,f"({opt_x:.2f}, {opt_y:.2f})",fontsize=7,color="orange")
             if abs(a2)>1e-8:
                 ax.plot(X,(z_opt-a1*X)/a2,"k--",lw=1,label=f"{a1:.2f}x+{a2:.2f}y={z_opt:.2f}")
+
         ax.set_xlim(-15,15); ax.set_ylim(-15,20)
         ax.set_xlabel("x",fontsize=8); ax.set_ylabel("y",fontsize=8)
         ax.legend(fontsize=7); ax.grid(True,linestyle="--",alpha=0.4)
         st.pyplot(fig)
-        st.markdown("</div>", unsafe_allow_html=True)
