@@ -21,20 +21,6 @@ h1 {
     font-size: 0.8rem !important;
     padding: 2px 3px !important;
 }
-/* 🔹 Selectbox belgilarini to‘liq va qora rangda ko‘rsatish */
-[data-baseweb="select"] > div {
-    background-color: white !important;
-    color: black !important;
-    font-size: 1.2rem !important;
-    text-align: center !important;
-    justify-content: center !important;
-    border: 1px solid #ccc !important;
-    border-radius: 6px !important;
-    height: 34px !important;
-}
-[data-baseweb="select"] svg {
-    color: #333 !important;
-}
 .stButton>button {
     padding: 0.3rem 0.7rem;
     font-size: 0.8rem;
@@ -95,14 +81,20 @@ with col_left:
         st.session_state.constraints.pop(i)
 
     for i, cons in enumerate(st.session_state.constraints):
-        cols = st.columns([1, 0.3, 1, 0.3, 0.7, 0.7, 0.2])
+        cols = st.columns([1, 0.3, 1, 0.5, 1, 0.7, 0.2])
         with cols[0]: cons["c"] = st.number_input("", value=cons["c"], key=f"c{i}")
         with cols[1]: st.markdown("*x +*")
         with cols[2]: cons["d"] = st.number_input("", value=cons["d"], key=f"d{i}")
         with cols[3]: st.markdown("*y*")
+
+        # 🔹 Belgilarni radio ko‘rinishida chiqaramiz (katta va aniq ko‘rinadi)
         with cols[4]:
-            cons["sign"] = st.selectbox("", ["≤", "≥", "="],
-                index=["≤", "≥", "="].index(cons["sign"]), key=f"sign{i}")
+            cons["sign"] = st.radio(
+                "", ["≤", "≥", "="],
+                index=["≤", "≥", "="].index(cons["sign"]),
+                horizontal=True,
+                key=f"sign{i}"
+            )
         with cols[5]: cons["b"] = st.number_input("", value=cons["b"], key=f"b{i}")
         with cols[6]: st.button("🗑", key=f"del{i}", on_click=remove_constraint, args=(i,))
 
