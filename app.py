@@ -94,36 +94,21 @@ if "results" not in st.session_state:
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
     
-    # 🔹 BIR QATORDA: 4,0 *x + 3,0 *y → max
-    col1, col2, col3, col4, col5, col6 = st.columns([1.2, 0.2, 1.2, 0.2, 0.8, 1.2])
+    # 🔹 To'g'ridan-to'g'ri HTML yozuvi
+    st.markdown("""
+    <div style="text-align: center; font-size: 16px; margin: 10px 0;">
+        <strong>4,0 *x + 3,0 *y → max</strong>
+    </div>
+    """, unsafe_allow_html=True)
     
+    # Haqiqiy inputlar - yashirin
+    col1, col2, col3 = st.columns(3)
     with col1:
-        a1 = st.number_input("", value=4.0, key="a1", format="%.1f", step=0.1, label_visibility="collapsed")
-        st.markdown("<div style='text-align: center; margin-top: -10px; font-size: 12px;'>*x</div>", unsafe_allow_html=True)
-    
+        a1 = st.number_input("a1", value=4.0, key="a1", format="%.1f", step=0.1, label_visibility="collapsed")
     with col2:
-        st.markdown("<div style='text-align: center; margin-top: 8px; font-size: 14px;'>+</div>", unsafe_allow_html=True)
-    
+        a2 = st.number_input("a2", value=3.0, key="a2", format="%.1f", step=0.1, label_visibility="collapsed")
     with col3:
-        a2 = st.number_input("", value=3.0, key="a2", format="%.1f", step=0.1, label_visibility="collapsed")
-        st.markdown("<div style='text-align: center; margin-top: -10px; font-size: 12px;'>*y</div>", unsafe_allow_html=True)
-    
-    with col4:
-        st.markdown("<div style='text-align: center; margin-top: 8px; font-size: 14px;'>→</div>", unsafe_allow_html=True)
-    
-    with col5:
-        st.write("")
-    
-    with col6:
-        st.markdown("<div style='margin-top: -5px;'>", unsafe_allow_html=True)
-        opt_type = st.segmented_control(
-            "",
-            ["max", "min"],
-            selection_mode="single",
-            default="max",
-            key="opt_type"
-        )
-        st.markdown("</div>", unsafe_allow_html=True)
+        opt_type = st.segmented_control("", ["max", "min"], default="max", key="opt_type")
 
     st.markdown("### ✏️ Ограничения")
 
@@ -140,54 +125,36 @@ with st.sidebar:
         st.session_state.constraints.pop(i)
 
     for i, cons in enumerate(st.session_state.constraints):
-        # 🔹 BIR QATORDA: 3,2 x + -2,0 y ≤ 3,0 🗑
-        cols = st.columns([1.2, 0.2, 1.2, 0.2, 0.8, 1.2, 0.4])
+        # 🔹 To'g'ridan-to'g'ri HTML yozuvi
+        st.markdown(f"""
+        <div style="text-align: center; font-size: 14px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center;">
+            <span>{cons['c']:.1f} x + {cons['d']:.1f} y {cons['sign']} {cons['b']:.1f}</span>
+            <button>🗑</button>
+        </div>
+        """, unsafe_allow_html=True)
         
+        # Haqiqiy inputlar - yashirin
+        cols = st.columns([2, 2, 1, 2, 1])
         with cols[0]:
-            cons["c"] = st.number_input("", value=cons["c"], key=f"c{i}", format="%.1f", step=0.1, label_visibility="collapsed")
-            st.markdown("<div style='text-align: center; margin-top: -10px; font-size: 11px;'>x</div>", unsafe_allow_html=True)
-        
+            cons["c"] = st.number_input("c", value=cons["c"], key=f"c{i}", format="%.1f", step=0.1, label_visibility="collapsed")
         with cols[1]:
-            st.markdown("<div style='text-align: center; margin-top: 8px; font-size: 12px;'>+</div>", unsafe_allow_html=True)
-        
+            cons["d"] = st.number_input("d", value=cons["d"], key=f"d{i}", format="%.1f", step=0.1, label_visibility="collapsed")
         with cols[2]:
-            cons["d"] = st.number_input("", value=cons["d"], key=f"d{i}", format="%.1f", step=0.1, label_visibility="collapsed")
-            st.markdown("<div style='text-align: center; margin-top: -10px; font-size: 11px;'>y</div>", unsafe_allow_html=True)
-        
+            cons["sign"] = st.segmented_control("", ["≤", "≥", "="], default=cons["sign"], key=f"sign{i}")
         with cols[3]:
-            st.markdown("<div style='text-align: center; margin-top: 8px; font-size: 12px;'></div>", unsafe_allow_html=True)
-        
+            cons["b"] = st.number_input("b", value=cons["b"], key=f"b{i}", format="%.1f", step=0.1, label_visibility="collapsed")
         with cols[4]:
-            cons["sign"] = st.segmented_control(
-                "",
-                ["≤", "≥", "="],
-                selection_mode="single",
-                default=cons["sign"],
-                key=f"sign{i}"
-            )
-        
-        with cols[5]:
-            cons["b"] = st.number_input("", value=cons["b"], key=f"b{i}", format="%.1f", step=0.1, label_visibility="collapsed")
-            st.markdown("<div style='text-align: center; margin-top: -10px; font-size: 11px; color: transparent;'>.</div>", unsafe_allow_html=True)
-        
-        with cols[6]:
-            st.markdown("<div style='margin-top: -5px;'>", unsafe_allow_html=True)
             if st.button("🗑", key=f"del{i}"):
                 remove_constraint(i)
                 st.rerun()
-            st.markdown("</div>", unsafe_allow_html=True)
 
     # Tugmalar
-    col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 1])
-    with col_btn1:
-        st.button("+ Добавить", on_click=add_constraint, use_container_width=True)
-    with col_btn2:
-        solve = st.button("Решить", use_container_width=True)
-    with col_btn3:
-        if st.button("Очистить", use_container_width=True):
-            st.session_state.constraints = []
-            st.session_state.results = []
-            st.rerun()
+    st.button("+ Добавить", on_click=add_constraint, use_container_width=True)
+    solve = st.button("Решить", use_container_width=True)
+    if st.button("Очистить", use_container_width=True):
+        st.session_state.constraints = []
+        st.session_state.results = []
+        st.rerun()
 
 st.title("📊 Линейное программирование — Решатель")
 
