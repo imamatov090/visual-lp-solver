@@ -69,49 +69,27 @@ button[kind="secondary"]:hover {
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
 
-    st.markdown("""
-    <script>
-    const sendValues = () => {
-        const a1 = parseFloat(document.getElementById("a1").value);
-        const a2 = parseFloat(document.getElementById("a2").value);
-        const opt = document.querySelector('input[name="opt"]:checked').value;
-        window.parent.postMessage({a1:a1, a2:a2, opt:opt}, "*");
-    };
-    document.addEventListener("input", sendValues);
-    </script>
-
-    <div style="
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        gap: 6px;
-        font-family: 'Cambria Math', 'Times New Roman', serif;
-        font-size: 18px;
-    ">
-        <input type="number" id="a1" value="4.0" step="0.1" style="width:65px; padding:4px; border-radius:5px; border:1px solid #ccc;">
-        *x 
-        <span style="font-size:19px; font-weight:bold;">+</span>
-        <input type="number" id="a2" value="3.0" step="0.1" style="width:65px; padding:4px; border-radius:5px; border:1px solid #ccc;">
-        *y →
-        <label style="display:flex; align-items:center; gap:4px; margin-left:6px;">
-            <input type="radio" name="opt" value="max" checked style="accent-color:#007bff;"> max
-        </label>
-        <label style="display:flex; align-items:center; gap:4px;">
-            <input type="radio" name="opt" value="min" style="accent-color:#007bff;"> min
-        </label>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # Fallback qiymatlar
-    if "a1" not in st.session_state: st.session_state.a1 = 4.0
-    if "a2" not in st.session_state: st.session_state.a2 = 3.0
-    if "opt_type" not in st.session_state: st.session_state.opt_type = "max"
-
-    a1 = st.session_state.a1
-    a2 = st.session_state.a2
-    opt_type = st.session_state.opt_type
+    # 🔹 Bir qatordagi formula
+    col1, col2, col3, col4, col5, col6 = st.columns([1, 0.25, 1, 0.25, 0.7, 1.2])
+    with col1:
+        a1 = st.number_input("", value=4.0, step=0.1, key="a1")
+    with col2:
+        st.markdown("*x +", unsafe_allow_html=True)
+    with col3:
+        a2 = st.number_input("", value=3.0, step=0.1, key="a2")
+    with col4:
+        st.markdown("*y →", unsafe_allow_html=True)
+    with col5:
+        opt_type = st.segmented_control(
+            "",
+            ["max", "min"],
+            selection_mode="single",
+            default="max",
+            key="opt_type"
+        )
 
     st.markdown("### ✏️ Ограничения")
+
 
     if "constraints" not in st.session_state:
         st.session_state.constraints = [
