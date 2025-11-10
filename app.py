@@ -94,11 +94,25 @@ if "results" not in st.session_state:
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
     
-    # 🔹 To'g'ridan-to'g'ri HTML yozuvi
+    # 🔹 HTML table orqali bir qatorda
     st.markdown("""
-    <div style="text-align: center; font-size: 16px; margin: 10px 0;">
-        <strong>4,0 *x + 3,0 *y → max</strong>
-    </div>
+    <table style="width: 100%; border: none; margin: 0; padding: 0;">
+        <tr>
+            <td style="text-align: center; width: 20%;">
+                <div>4,0</div>
+                <div style="font-size: 12px;">*x</div>
+            </td>
+            <td style="text-align: center; width: 5%;">+</td>
+            <td style="text-align: center; width: 20%;">
+                <div>3,0</div>
+                <div style="font-size: 12px;">*y</div>
+            </td>
+            <td style="text-align: center; width: 5%;">→</td>
+            <td style="text-align: center; width: 50%;">
+                max
+            </td>
+        </tr>
+    </table>
     """, unsafe_allow_html=True)
     
     # Haqiqiy inputlar - yashirin
@@ -125,12 +139,28 @@ with st.sidebar:
         st.session_state.constraints.pop(i)
 
     for i, cons in enumerate(st.session_state.constraints):
-        # 🔹 To'g'ridan-to'g'ri HTML yozuvi
+        # 🔹 HTML table orqali cheklovlarni bir qatorda
         st.markdown(f"""
-        <div style="text-align: center; font-size: 14px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center;">
-            <span>{cons['c']:.1f} x + {cons['d']:.1f} y {cons['sign']} {cons['b']:.1f}</span>
-            <button>🗑</button>
-        </div>
+        <table style="width: 100%; border: none; margin: 5px 0; padding: 0;">
+            <tr>
+                <td style="text-align: center; width: 20%;">
+                    <div>{cons['c']:.1f}</div>
+                    <div style="font-size: 11px;">x</div>
+                </td>
+                <td style="text-align: center; width: 5%;">+</td>
+                <td style="text-align: center; width: 20%;">
+                    <div>{cons['d']:.1f}</div>
+                    <div style="font-size: 11px;">y</div>
+                </td>
+                <td style="text-align: center; width: 10%;">{cons['sign']}</td>
+                <td style="text-align: center; width: 20%;">
+                    <div>{cons['b']:.1f}</div>
+                </td>
+                <td style="text-align: center; width: 10%;">
+                    <button>🗑</button>
+                </td>
+            </tr>
+        </table>
         """, unsafe_allow_html=True)
         
         # Haqiqiy inputlar - yashirin
