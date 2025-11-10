@@ -8,11 +8,29 @@ st.set_page_config(page_title="Линейное программирование
 # 💅 CSS — dizayn va ranglar
 st.markdown("""
 <style>
+/* Asosiy CSS qoidalari */
+.single-row-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 5px 0;
+}
+
+.single-row-item {
+    flex: 1;
+    text-align: center;
+}
+
+.number-input {
+    width: 80px !important;
+    margin: 0 auto !important;
+}
+
 /* Segment tugmalar */
 .stSegmentedControl label {
-    min-width: 65px !important;
-    height: 38px !important;
-    border-radius: 10px !important;
+    min-width: 60px !important;
+    height: 35px !important;
+    border-radius: 8px !important;
     border: 1.5px solid #007bff !important;
     background-color: #f8f9fa !important;
     color: #007bff !important;
@@ -20,13 +38,11 @@ st.markdown("""
     align-items: center !important;
     justify-content: center !important;
     font-weight: 500 !important;
-    transition: all 0.2s ease-in-out;
-    white-space: nowrap !important;
 }
+
 .stSegmentedControl label[data-checked="true"] {
     background-color: #007bff !important;
     color: white !important;
-    box-shadow: 0 0 6px rgba(0,123,255,0.4);
 }
 
 /* Tugmalar */
@@ -36,53 +52,8 @@ st.markdown("""
     border-radius: 6px !important;
     border: none !important;
     font-weight: 500 !important;
-    padding: 0.5rem 1rem !important;
-}
-.stButton > button:hover {
-    background-color: #0056b3 !important;
-}
-
-/* Удалить */
-button[kind="secondary"] {
-    background-color: #007bff !important;
-    color: white !important;
-    border-radius: 6px !important;
-}
-button[kind="secondary"]:hover {
-    background-color: #0056b3 !important;
-}
-
-/* Gradient tarix kartochkasi */
-.result-card {
-    background: linear-gradient(90deg, rgba(0,123,255,0.15) 0%, rgba(0,212,255,0.15) 100%);
-    border-left: 5px solid #007bff;
-    border-radius: 10px;
-    padding: 0.8rem 1rem;
-    margin-top: 0.8rem;
-    font-size: 15px;
-}
-
-/* ✅ YANGI: Inputlarni markazlashtirish */
-.stNumberInput > div > div {
-    text-align: center;
-}
-
-/* ✅ YANGI: Tugmalarni kichikroq qilish */
-.stButton > button {
-    padding: 0.25rem 0.5rem !important;
+    padding: 0.3rem 0.8rem !important;
     font-size: 12px !important;
-}
-
-/* ✅ YANGI: Segment control markazida */
-.stSegmentedControl {
-    justify-content: center;
-}
-
-/* ✅ YANGI: Bir qator ko'rinishi */
-.single-row {
-    display: flex;
-    align-items: center;
-    gap: 5px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -101,36 +72,33 @@ if "results" not in st.session_state:
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
     
-    # 🔹 BIR QATORDA: 4,0 *x + 3,0 *y → max
-    col1, col2, col3, col4, col5, col6 = st.columns([1.2, 0.4, 1.2, 0.4, 0.6, 1.2])
+    # 🔹 Maqsad funksiyasi - HTML orqali bir qatorda
+    st.markdown("""
+    <div class="single-row-container">
+        <div class="single-row-item">
+            <div>4,0</div>
+            <div style="font-size: 12px;">*x</div>
+        </div>
+        <div class="single-row-item" style="flex: 0.2;">+</div>
+        <div class="single-row-item">
+            <div>3,0</div>
+            <div style="font-size: 12px;">*y</div>
+        </div>
+        <div class="single-row-item" style="flex: 0.2;">→</div>
+        <div class="single-row-item" style="flex: 0.8;">
+            <div>max</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
     
+    # Haqiqiy inputlar - yashirin
+    col1, col2, col3 = st.columns([1, 1, 1])
     with col1:
         a1 = st.number_input("a1", value=4.0, key="a1", format="%.1f", step=0.1, label_visibility="collapsed")
-        st.markdown("<div style='text-align: center; margin-top: -15px; font-size: 14px;'>*x</div>", unsafe_allow_html=True)
-    
     with col2:
-        st.markdown("<div style='text-align: center; margin-top: 10px; font-size: 16px;'>+</div>", unsafe_allow_html=True)
-    
-    with col3:
         a2 = st.number_input("a2", value=3.0, key="a2", format="%.1f", step=0.1, label_visibility="collapsed")
-        st.markdown("<div style='text-align: center; margin-top: -15px; font-size: 14px;'>*y</div>", unsafe_allow_html=True)
-    
-    with col4:
-        st.markdown("<div style='text-align: center; margin-top: 10px; font-size: 16px;'>→</div>", unsafe_allow_html=True)
-    
-    with col5:
-        st.write("")
-    
-    with col6:
-        st.markdown("<div style='margin-top: 5px;'>", unsafe_allow_html=True)
-        opt_type = st.segmented_control(
-            "",
-            ["max", "min"],
-            selection_mode="single",
-            default="max",
-            key="opt_type"
-        )
-        st.markdown("</div>", unsafe_allow_html=True)
+    with col3:
+        opt_type = st.segmented_control("", ["max", "min"], default="max", key="opt_type")
 
     st.markdown("### ✏️ Ограничения")
 
@@ -141,49 +109,49 @@ with st.sidebar:
         st.session_state.constraints.pop(i)
 
     for i, cons in enumerate(st.session_state.constraints):
-        # 🔹 BIR QATORDA: 3,2 x + -2,0 y ≤ 3,0
-        cols = st.columns([1.2, 0.3, 1.2, 0.3, 0.8, 1.2, 0.4])
+        # Har bir cheklov uchun HTML ko'rinishi
+        st.markdown(f"""
+        <div class="single-row-container">
+            <div class="single-row-item">
+                <div>{cons['c']:.1f}</div>
+                <div style="font-size: 11px;">x</div>
+            </div>
+            <div class="single-row-item" style="flex: 0.1;">+</div>
+            <div class="single-row-item">
+                <div>{cons['d']:.1f}</div>
+                <div style="font-size: 11px;">y</div>
+            </div>
+            <div class="single-row-item" style="flex: 0.2;">{cons['sign']}</div>
+            <div class="single-row-item">
+                <div>{cons['b']:.1f}</div>
+            </div>
+            <div class="single-row-item" style="flex: 0.2;">
+                <button>🗑</button>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
         
+        # Haqiqiy inputlar - yashirin
+        cols = st.columns([1, 1, 1, 1, 0.5])
         with cols[0]:
             cons["c"] = st.number_input("c", value=cons["c"], key=f"c{i}", format="%.1f", step=0.1, label_visibility="collapsed")
-            st.markdown("<div style='text-align: center; margin-top: -15px; font-size: 12px;'>x</div>", unsafe_allow_html=True)
-        
         with cols[1]:
-            st.markdown("<div style='text-align: center; margin-top: 10px; font-size: 14px;'>+</div>", unsafe_allow_html=True)
-        
-        with cols[2]:
             cons["d"] = st.number_input("d", value=cons["d"], key=f"d{i}", format="%.1f", step=0.1, label_visibility="collapsed")
-            st.markdown("<div style='text-align: center; margin-top: -15px; font-size: 12px;'>y</div>", unsafe_allow_html=True)
-        
+        with cols[2]:
+            cons["sign"] = st.segmented_control("", ["≤", "≥", "="], default=cons["sign"], key=f"sign{i}")
         with cols[3]:
-            st.markdown("<div style='text-align: center; margin-top: 10px; font-size: 14px;'></div>", unsafe_allow_html=True)
-        
-        with cols[4]:
-            cons["sign"] = st.segmented_control(
-                "",
-                ["≤", "≥", "="],
-                selection_mode="single",
-                default=cons["sign"],
-                key=f"sign{i}"
-            )
-        
-        with cols[5]:
             cons["b"] = st.number_input("b", value=cons["b"], key=f"b{i}", format="%.1f", step=0.1, label_visibility="collapsed")
-            st.markdown("<div style='text-align: center; margin-top: -15px; font-size: 12px; color: transparent;'>.</div>", unsafe_allow_html=True)
-        
-        with cols[6]:
-            st.markdown("<div style='margin-top: 5px;'>", unsafe_allow_html=True)
+        with cols[4]:
             if st.button("🗑", key=f"del{i}"):
                 remove_constraint(i)
                 st.rerun()
-            st.markdown("</div>", unsafe_allow_html=True)
 
-    col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 1])
-    with col_btn1:
+    col1, col2, col3 = st.columns([1, 1, 1])
+    with col1:
         st.button("+ Добавить", on_click=add_constraint, use_container_width=True)
-    with col_btn2:
+    with col2:
         solve = st.button("Решить", use_container_width=True)
-    with col_btn3:
+    with col3:
         if st.button("Очистить", use_container_width=True):
             st.session_state.constraints = []
             st.session_state.results = []
@@ -232,9 +200,7 @@ if solve:
         best = np.argmax(z) if opt_type == "max" else np.argmin(z)
         ox, oy, zopt = *feas[best], z[best]
 
-        # 🔹 faqat oxirgi 5 ta natijani saqlash
         st.session_state.results = st.session_state.results[-4:]
-
         result_id = len(st.session_state.results) + 1
         st.session_state.results.append({
             "№": result_id,
@@ -243,89 +209,50 @@ if solve:
             "z": round(zopt, 1),
             "type": opt_type
         })
+        
+        st.success(f"✅ Решение найдено: x = {ox:.1f}, y = {oy:.1f}, f(x,y) = {zopt:.1f}")
     else:
-        ox = oy = zopt = None
+        st.error("❌ Решение не найдено. Проверьте ограничения.")
 
-    fig = go.Figure()
-    colors = ["rgba(0,123,255,0.3)", "rgba(255,152,0,0.3)", "rgba(156,39,176,0.3)",
-              "rgba(76,175,80,0.3)", "rgba(244,67,54,0.3)", "rgba(121,85,72,0.3)"]
-
-    for i, (c, d, b, sign) in enumerate(lines):
-        Y = (b - c * X) / d
-        fig.add_trace(go.Scatter(
-            x=X, y=Y, mode="lines",
-            line=dict(color=colors[i % len(colors)].replace("0.3", "1.0"), width=2),
-            fill="tonexty" if sign in ["≤", "≥"] else None,
-            fillcolor=colors[i % len(colors)],
-            name=f"{c:.1f}x + {d:.1f}y {sign} {b:.1f}"
-        ))
-
-    # 🔹 Целевая прямая — ikki rangli (qizil / ko‘k)
+    # Grafik chizish
     if feas:
+        fig = go.Figure()
+        colors = ["rgba(0,123,255,0.3)", "rgba(255,152,0,0.3)", "rgba(156,39,176,0.3)"]
+
+        for i, (c, d, b, sign) in enumerate(lines):
+            Y = (b - c * X) / d
+            fig.add_trace(go.Scatter(
+                x=X, y=Y, mode="lines",
+                line=dict(color=colors[i % len(colors)].replace("0.3", "1.0"), width=2),
+                fill="tonexty" if sign in ["≤", "≥"] else None,
+                fillcolor=colors[i % len(colors)],
+                name=f"{c:.1f}x + {d:.1f}y {sign} {b:.1f}"
+            ))
+
+        # Optimallik chizig'i
         z_line = zopt
         x_split = ox
-        y_split = (z_line - a1 * x_split) / a2
-
         X_left = X[X <= x_split]
         X_right = X[X >= x_split]
         Y_left = (z_line - a1 * X_left) / a2
         Y_right = (z_line - a1 * X_right) / a2
 
-        # 🔵 min tomoni
-        fig.add_trace(go.Scatter(
-            x=X_left, y=Y_left, mode="lines",
-            line=dict(color="blue", width=3, dash="dot"),
-            name="Минимум (голубой)"
-        ))
+        fig.add_trace(go.Scatter(x=X_left, y=Y_left, mode="lines", line=dict(color="blue", width=3, dash="dot"), name="Min"))
+        fig.add_trace(go.Scatter(x=X_right, y=Y_right, mode="lines", line=dict(color="red", width=3, dash="dot"), name="Max"))
+        fig.add_trace(go.Scatter(x=[ox], y=[oy], mode="markers+text", text=[f"({ox:.1f},{oy:.1f})"], textposition="top center", marker=dict(color="gold", size=12), name="Оптимум"))
 
-        # 🔴 max tomoni
-        fig.add_trace(go.Scatter(
-            x=X_right, y=Y_right, mode="lines",
-            line=dict(color="red", width=3, dash="dot"),
-            name="Максимум (красный)"
-        ))
-
-        # ⭐ Optimum nuqta
-        fig.add_trace(go.Scatter(
-            x=[ox], y=[oy],
-            mode="markers+text",
-            text=[f"({ox:.1f},{oy:.1f})"],
-            textposition="top center",
-            marker=dict(color="gold", size=12, line=dict(color="black", width=1)),
-            name="⭐ Оптимум"
-        ))
-
-    # 🔳 Setka — kichikroq oraliqda (har 2 birlikda)
-    fig.update_layout(
-        title="График решения",
-        xaxis_title="x",
-        yaxis_title="y",
-        height=500,
-        template="plotly_white",
-        xaxis=dict(showgrid=True, gridwidth=0.6, gridcolor="LightGray", dtick=2),
-        yaxis=dict(showgrid=True, gridwidth=0.6, gridcolor="LightGray", dtick=2)
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
+        fig.update_layout(title="График решения", xaxis_title="x", yaxis_title="y", height=500)
+        st.plotly_chart(fig, use_container_width=True)
 
 # --- Natijalar --- #
 if st.session_state.results:
-    st.markdown("### 🧮 История решений (значения функции)")
-
+    st.markdown("### 🧮 История решений")
     for res in reversed(st.session_state.results):
-        if res["type"] == "max":
-            bg_color = "rgba(255, 0, 0, 0.1)"
-            border_color = "red"
-        else:
-            bg_color = "rgba(0, 123, 255, 0.1)"
-            border_color = "blue"
-
-        st.markdown(
-            f"<div style='background:{bg_color}; border-left:5px solid {border_color}; "
-            f"border-radius:10px; padding:0.8rem 1rem; margin-top:0.8rem; font-size:15px;'>"
-            f"<b>f<sub>{res['№']}</sub>(x, y)</b> = {res['z']} &nbsp;&nbsp; "
-            f"<i>при</i> (x = {res['x']}, y = {res['y']}) &nbsp;&nbsp; "
-            f"<b>Тип:</b> {res['type'].upper()}"
-            f"</div>",
-            unsafe_allow_html=True
-        )
+        color = "red" if res["type"] == "max" else "blue"
+        bg = "rgba(255,0,0,0.1)" if res["type"] == "max" else "rgba(0,123,255,0.1)"
+        
+        st.markdown(f"""
+        <div style='background:{bg}; border-left:5px solid {color}; border-radius:10px; padding:0.8rem; margin:0.5rem 0;'>
+            <b>f(x,y)</b> = {res['z']} &nbsp; при &nbsp; (x = {res['x']}, y = {res['y']}) &nbsp; <b>Тип:</b> {res['type'].upper()}
+        </div>
+        """, unsafe_allow_html=True)
