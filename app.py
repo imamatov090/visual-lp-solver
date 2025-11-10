@@ -8,6 +8,7 @@ st.set_page_config(page_title="Линейное программирование
 # 💅 CSS — dizayn va ranglar
 st.markdown("""
 <style>
+/* Segment tugmalar */
 .stSegmentedControl label {
     min-width: 65px !important;
     height: 38px !important;
@@ -27,6 +28,8 @@ st.markdown("""
     color: white !important;
     box-shadow: 0 0 6px rgba(0,123,255,0.4);
 }
+
+/* Tugmalar */
 .stButton > button {
     background-color: #007bff !important;
     color: white !important;
@@ -38,6 +41,8 @@ st.markdown("""
 .stButton > button:hover {
     background-color: #0056b3 !important;
 }
+
+/* Удалить */
 button[kind="secondary"] {
     background-color: #007bff !important;
     color: white !important;
@@ -46,6 +51,8 @@ button[kind="secondary"] {
 button[kind="secondary"]:hover {
     background-color: #0056b3 !important;
 }
+
+/* Gradient tarix kartochkasi */
 .result-card {
     background: linear-gradient(90deg, rgba(0,123,255,0.15) 0%, rgba(0,212,255,0.15) 100%);
     border-left: 5px solid #007bff;
@@ -57,22 +64,27 @@ button[kind="secondary"]:hover {
 </style>
 """, unsafe_allow_html=True)
 
+
 # --- Sidebar --- #
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
 
-    col1, col2, col3, col4, col5 = st.columns([1, 0.2, 1, 0.2, 1.2])
+    # 🔹 Rasmda ko‘rsatilgan shakl: 4,0 * x + 3,0 * y →
+    col1, col2, col3, col4, col5, col6 = st.columns([1, 0.4, 1, 0.4, 0.4, 1.2])
     with col1:
-        a1 = st.number_input("", value=5.3, key="a1")
+        a1 = st.number_input("", value=4.0, key="a1")
     with col2:
-        st.write("*x +")
+        st.markdown("*x +", unsafe_allow_html=True)
     with col3:
-        a2 = st.number_input("", value=-7.1, key="a2")
+        a2 = st.number_input("", value=3.0, key="a2")
     with col4:
-        st.write("*y →")
+        st.markdown("*y →", unsafe_allow_html=True)
     with col5:
+        st.write("")
+    with col6:
         opt_type = st.segmented_control(
-            "", ["max", "min"],
+            "",
+            ["max", "min"],
             selection_mode="single",
             default="max",
             key="opt_type"
@@ -125,7 +137,9 @@ with st.sidebar:
         st.session_state.results = []
         st.experimental_rerun()
 
+
 st.title("📊 Линейное программирование — Решатель")
+
 
 # --- Hisoblash qismi --- #
 if solve:
@@ -167,7 +181,10 @@ if solve:
         z = [a1 * x + a2 * y for (x, y) in feas]
         best = np.argmax(z) if opt_type == "max" else np.argmin(z)
         ox, oy, zopt = *feas[best], z[best]
+
+        # 🔹 faqat oxirgi 5 ta natijani saqlash
         st.session_state.results = st.session_state.results[-4:]
+
         result_id = len(st.session_state.results) + 1
         st.session_state.results.append({
             "№": result_id,
@@ -180,10 +197,8 @@ if solve:
         ox = oy = zopt = None
 
     fig = go.Figure()
-    colors = [
-        "rgba(0,123,255,0.3)", "rgba(255,152,0,0.3)", "rgba(156,39,176,0.3)",
-        "rgba(76,175,80,0.3)", "rgba(244,67,54,0.3)", "rgba(121,85,72,0.3)"
-    ]
+    colors = ["rgba(0,123,255,0.3)", "rgba(255,152,0,0.3)", "rgba(156,39,176,0.3)",
+              "rgba(76,175,80,0.3)", "rgba(244,67,54,0.3)", "rgba(121,85,72,0.3)"]
 
     for i, (c, d, b, sign) in enumerate(lines):
         Y = (b - c * X) / d
@@ -195,43 +210,50 @@ if solve:
             name=f"{c:.2f}x + {d:.2f}y {sign} {b:.2f}"
         ))
 
-    # 🔹 Целевая прямая (qora nuqtali chiziq)
-    if feas and ox is not None:
-        Y_line = (zopt - a1 * X) / a2
+    # 🔹 Целевая прямая — ikki rangli (qizil / ko‘k)
+    if feas:
+        z_line = zopt
+        x_split = ox
+        y_split = (z_line - a1 * x_split) / a2
+
+        X_left = X[X <= x_split]
+        X_right = X[X >= x_split]
+        Y_left = (z_line - a1 * X_left) / a2
+        Y_right = (z_line - a1 * X_right) / a2
+
+        # 🔵 min tomoni
         fig.add_trace(go.Scatter(
-            x=X, y=Y_line,
-            mode="lines",
-            line=dict(color="black", width=2, dash="dot"),
-            name=f"Целевая прямая: {a1:.2f}x + {a2:.2f}y = {zopt:.2f}"
+            x=X_left, y=Y_left, mode="lines",
+            line=dict(color="blue", width=3, dash="dot"),
+            name="Минимум (голубой)"
         ))
 
-    if feas:
+        # 🔴 max tomoni
+        fig.add_trace(go.Scatter(
+            x=X_right, y=Y_right, mode="lines",
+            line=dict(color="red", width=3, dash="dot"),
+            name="Максимум (красный)"
+        ))
+
+        # ⭐ Optimum nuqta
         fig.add_trace(go.Scatter(
             x=[ox], y=[oy],
             mode="markers+text",
-            text=[f"({ox:.2f},{oy:.2f})"], textposition="top center",
+            text=[f"({ox:.2f},{oy:.2f})"],
+            textposition="top center",
             marker=dict(color="gold", size=12, line=dict(color="black", width=1)),
             name="⭐ Оптимум"
         ))
 
-    # 🔹 Fonga setka (o‘rta razmer, dtick=4)
+    # 🔳 Setka — kichikroq oraliqda (har 2 birlikda)
     fig.update_layout(
         title="График решения",
         xaxis_title="x",
         yaxis_title="y",
         height=500,
-        plot_bgcolor="rgba(245,245,245,1)",
-        xaxis=dict(
-            showgrid=True, gridcolor="lightgray",
-            zeroline=True, zerolinecolor="gray",
-            dtick=4  # o‘rta kattalikda setka
-        ),
-        yaxis=dict(
-            showgrid=True, gridcolor="lightgray",
-            zeroline=True, zerolinecolor="gray",
-            dtick=4
-        ),
-        template="plotly_white"
+        template="plotly_white",
+        xaxis=dict(showgrid=True, gridwidth=0.6, gridcolor="LightGray", dtick=2),
+        yaxis=dict(showgrid=True, gridwidth=0.6, gridcolor="LightGray", dtick=2)
     )
 
     st.plotly_chart(fig, use_container_width=True)
@@ -241,9 +263,16 @@ if st.session_state.results:
     st.markdown("### 🧮 История решений (значения функции)")
 
     for res in reversed(st.session_state.results):
-        bg_color = "#e3f2fd" if res["type"] == "max" else "#f1f8e9"
+        if res["type"] == "max":
+            bg_color = "rgba(255, 0, 0, 0.1)"
+            border_color = "red"
+        else:
+            bg_color = "rgba(0, 123, 255, 0.1)"
+            border_color = "blue"
+
         st.markdown(
-            f"<div class='result-card' style='background:{bg_color};'>"
+            f"<div style='background:{bg_color}; border-left:5px solid {border_color}; "
+            f"border-radius:10px; padding:0.8rem 1rem; margin-top:0.8rem; font-size:15px;'>"
             f"<b>f<sub>{res['№']}</sub>(x, y)</b> = {res['z']} &nbsp;&nbsp; "
             f"<i>при</i> (x = {res['x']}, y = {res['y']}) &nbsp;&nbsp; "
             f"<b>Тип:</b> {res['type'].upper()}"
