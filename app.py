@@ -214,26 +214,22 @@ if solve:
             name="⭐ Оптимум"
         ))
 
-    # 🔹 Fonga zich setka qo‘shish
+    # 🔹 Fonga setka (o‘rta razmer, dtick=4)
     fig.update_layout(
         title="График решения",
         xaxis_title="x",
         yaxis_title="y",
         height=500,
-        plot_bgcolor="rgba(245, 245, 245, 1)",  # fon rangi
+        plot_bgcolor="rgba(245,245,245,1)",
         xaxis=dict(
-            showgrid=True,
-            gridcolor="lightgray",
-            zeroline=True,
-            zerolinecolor="gray",
-            dtick=1.5  # 🔹 zich setka
+            showgrid=True, gridcolor="lightgray",
+            zeroline=True, zerolinecolor="gray",
+            dtick=4  # o‘rta kattalikda setka
         ),
         yaxis=dict(
-            showgrid=True,
-            gridcolor="lightgray",
-            zeroline=True,
-            zerolinecolor="gray",
-            dtick=1.5  # 🔹 zich setka
+            showgrid=True, gridcolor="lightgray",
+            zeroline=True, zerolinecolor="gray",
+            dtick=4
         ),
         template="plotly_white"
     )
