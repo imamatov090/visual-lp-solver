@@ -5,10 +5,10 @@ from itertools import combinations
 
 st.set_page_config(page_title="Линейное программирование — Решатель", layout="wide")
 
-# ✅ CSS – yangi usul bilan ko‘k rangli radio tugmalar
+# 💙 CSS — ko‘k rangli elementlar, soddalashgan
 st.markdown("""
 <style>
-/* 🔵 Radiolarni (≤ ≥ =) ko‘k rangda qilish */
+/* Radiolarni ko‘k rangda */
 [data-testid="stRadio"] div[role="radiogroup"] > label {
     border: 2px solid #007bff !important;
     border-radius: 6px !important;
@@ -17,17 +17,13 @@ st.markdown("""
     background-color: white !important;
     color: #007bff !important;
     font-weight: 500 !important;
-    cursor: pointer !important;
-}
-[data-testid="stRadio"] div[role="radiogroup"] > label:hover {
-    background-color: #e6f0ff !important;
 }
 [data-testid="stRadio"] div[role="radiogroup"] > label[data-checked="true"] {
     background-color: #007bff !important;
     color: white !important;
 }
 
-/* 🔵 Tugmalar — chiroyli kvadrat shaklda ko‘k */
+/* Tugmalar */
 .stButton > button {
     background-color: #007bff !important;
     color: white !important;
@@ -35,19 +31,16 @@ st.markdown("""
     border: none !important;
     font-weight: 500 !important;
     padding: 0.5rem 1rem !important;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
 }
 .stButton > button:hover {
     background-color: #0056b3 !important;
 }
 
-/* 🔵 “Удалить” tugmasi */
-button[kind="secondary"], div[data-testid="stButton"] > button[kind="secondary"] {
+/* Удалить */
+button[kind="secondary"] {
     background-color: #007bff !important;
     color: white !important;
     border-radius: 6px !important;
-    padding: 0.4rem 0.6rem !important;
-    border: none !important;
 }
 button[kind="secondary"]:hover {
     background-color: #0056b3 !important;
@@ -55,12 +48,21 @@ button[kind="secondary"]:hover {
 </style>
 """, unsafe_allow_html=True)
 
-# --- Asosiy UI ---
+# --- Sidebar --- #
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
-    a1 = st.number_input("Коэффициент при x", value=5.3, key="a1")
-    a2 = st.number_input("Коэффициент при y", value=-7.1, key="a2")
-    opt_type = st.radio("Тип оптимизации:", ["max", "min"], horizontal=True)
+
+    col1, col2, col3, col4, col5, col6 = st.columns([1, 0.2, 1, 0.2, 0.6, 0.8])
+    with col1:
+        a1 = st.number_input("", value=5.3, key="a1")
+    with col2:
+        st.write("*x +")
+    with col3:
+        a2 = st.number_input("", value=-7.1, key="a2")
+    with col4:
+        st.write("*y →")
+    with col5:
+        opt_type = st.selectbox("", ["max", "min"], index=0, key="opt_type")
 
     st.markdown("### ✏️ Ограничения")
 
@@ -111,7 +113,7 @@ with st.sidebar:
 
 st.title("📊 Линейное программирование — Решатель")
 
-# --- Hisoblash qismi ---
+# --- Hisoblash qismi --- #
 if solve:
     X = np.linspace(-20, 20, 600)
     lines = []
@@ -142,13 +144,13 @@ if solve:
         for (c, d, b, sign) in lines:
             val = c*x + d*y
             if (sign == "≤" and val > b) or (sign == "≥" and val < b) or (sign == "=" and abs(val - b) > 1e-6):
-                ok=False; break
+                ok = False; break
         if ok:
             feas.append((x, y))
 
     if feas:
         z = [a1*x + a2*y for (x, y) in feas]
-        best = np.argmax(z) if opt_type=="max" else np.argmin(z)
+        best = np.argmax(z) if opt_type == "max" else np.argmin(z)
         ox, oy, zopt = *feas[best], z[best]
         result_id = len(st.session_state.results) + 1
         st.session_state.results.append({
@@ -165,42 +167,31 @@ if solve:
     colors = ["rgba(0,123,255,0.3)", "rgba(255,152,0,0.3)", "rgba(156,39,176,0.3)",
               "rgba(76,175,80,0.3)", "rgba(244,67,54,0.3)", "rgba(121,85,72,0.3)"]
 
-    for i,(c,d,b,sign) in enumerate(lines):
+    for i, (c, d, b, sign) in enumerate(lines):
         Y = (b - c*X) / d
         fig.add_trace(go.Scatter(
             x=X, y=Y, mode="lines",
-            line=dict(color=colors[i%len(colors)].replace("0.3","1.0"), width=2),
-            fill="tonexty" if sign in ["≤","≥"] else None,
-            fillcolor=colors[i%len(colors)],
+            line=dict(color=colors[i % len(colors)].replace("0.3", "1.0"), width=2),
+            fill="tonexty" if sign in ["≤", "≥"] else None,
+            fillcolor=colors[i % len(colors)],
             name=f"{c:.2f}x + {d:.2f}y {sign} {b:.2f}"
         ))
 
     if feas:
-        fig.add_trace(go.Scatter(x=[ox], y=[oy], mode="markers+text",
-                                 text=[f"({ox:.2f},{oy:.2f})"], textposition="top center",
-                                 marker=dict(color="gold", size=12, line=dict(color="black", width=1)),
-                                 name="⭐ Оптимум"))
+        fig.add_trace(go.Scatter(
+            x=[ox], y=[oy], mode="markers+text",
+            text=[f"({ox:.2f},{oy:.2f})"], textposition="top center",
+            marker=dict(color="gold", size=12, line=dict(color="black", width=1)),
+            name="⭐ Оптимум"
+        ))
 
     fig.update_layout(title="График решения", xaxis_title="x", yaxis_title="y",
                       height=500, template="plotly_white")
     st.plotly_chart(fig, use_container_width=True)
 
+# --- Natijalar --- #
 if st.session_state.results:
     st.markdown("### 🧮 История решений (значения функции)")
-
     results = st.session_state.results
     for i, res in enumerate(reversed(results)):
         st.latex(fr"f_{{{res['№']}}}(x, y) = {res['z']} \\quad \\text{{при}} \\quad x={res['x']}, \\; y={res['y']}")
-
-    if len(results) >= 2:
-        last = results[-1]
-        prev = results[-2]
-        if last["z"] > prev["z"]:
-            st.success(f"📈 Новое решение лучше:")
-            st.latex(fr"f_{{{last['№']}}}({last['x']},{last['y']}) = {last['z']} \\; > \\; f_{{{prev['№']}}}({prev['x']},{prev['y']}) = {prev['z']}")
-        elif last["z"] < prev["z"]:
-            st.error(f"📉 Новое решение хуже:")
-            st.latex(fr"f_{{{last['№']}}}({last['x']},{last['y']}) = {last['z']} \\; < \\; f_{{{prev['№']}}}({prev['x']},{prev['y']}) = {prev['z']}")
-        else:
-            st.info(f"⚖️ Значения равны:")
-            st.latex(fr"f_{{{last['№']}}} = f_{{{prev['№']}}} = {last['z']}")
