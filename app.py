@@ -77,28 +77,32 @@ button[kind="secondary"]:hover {
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
 
-    # 🔹 BARCHA ELEMENTLAR BIR QATORDA (tekis chiziq bo‘ylab)
-    col1, col2, col3, col4, col5, col6, col7 = st.columns([1, 0.4, 0.4, 1, 0.4, 0.4, 1.2])
-    with col1:
-        a1 = st.number_input("", value=4.0, key="a1")
-    with col2:
-        st.markdown('<p class="math-text">× 𝑥 +</p>', unsafe_allow_html=True)
-    with col3:
-        a2 = st.number_input("", value=3.0, key="a2")
-    with col4:
-        st.markdown('<p class="math-text">× 𝑦 →</p>', unsafe_allow_html=True)
-    with col5:
-        st.write("")
-    with col6:
-        opt_type = st.segmented_control(
-            "",
-            ["max", "min"],
-            selection_mode="single",
-            default="max",
-            key="opt_type"
-        )
+    # 💡 HTML yordamida 𝑥, 𝑦 matematik yozuvli chiroyli bitta qatordagi formula
+    st.markdown("""
+    <div style="
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 6px;
+        font-family: 'Cambria Math', 'Times New Roman', serif;
+        font-style: italic;
+        font-size: 18px;
+    ">
+        <input type="number" id="a1" value="4.0" style="width:60px; padding:4px; border-radius:5px; border:1px solid #ccc;">
+        × 𝑥 + 
+        <input type="number" id="a2" value="3.0" style="width:60px; padding:4px; border-radius:5px; border:1px solid #ccc;">
+        × 𝑦 →
+        <span style="font-style:normal;">
+            <select id="opt_type" style="border:1.5px solid #007bff; border-radius:6px; padding:2px 6px; color:#007bff; font-weight:500;">
+                <option>max</option>
+                <option>min</option>
+            </select>
+        </span>
+    </div>
+    """, unsafe_allow_html=True)
 
     st.markdown("### ✏️ Ограничения")
+
 
     if "constraints" not in st.session_state:
         st.session_state.constraints = [
