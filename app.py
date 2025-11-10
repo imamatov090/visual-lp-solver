@@ -66,19 +66,21 @@ button[kind="secondary"]:hover {
 
 
 # --- Sidebar --- #
+# --- Sidebar --- #
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
 
-    # 🔹 Rasmda ko‘rsatilgan shakl: 4,0 * x + 3,0 * y →
-    col1, col2, col3, col4, col5, col6 = st.columns([1, 0.4, 1, 0.4, 0.4, 1.2])
+    # 🔹 Rasmda ko'rsatilgan shakl: 4,0 * x + 3,0 * y → max
+    col1, col2, col3, col4, col5, col6 = st.columns([0.8, 0.3, 0.8, 0.3, 0.3, 1.2])
+    
     with col1:
-        a1 = st.number_input("", value=4.0, key="a1")
+        a1 = st.number_input("", value=4.0, key="a1", format="%.1f", step=0.1)
     with col2:
-        st.markdown("*x +", unsafe_allow_html=True)
+        st.markdown("<div style='text-align: center; margin-top: 10px;'>*x +</div>", unsafe_allow_html=True)
     with col3:
-        a2 = st.number_input("", value=3.0, key="a2")
+        a2 = st.number_input("", value=3.0, key="a2", format="%.1f", step=0.1)
     with col4:
-        st.markdown("*y →", unsafe_allow_html=True)
+        st.markdown("<div style='text-align: center; margin-top: 10px;'>*y →</div>", unsafe_allow_html=True)
     with col5:
         st.write("")
     with col6:
@@ -102,19 +104,20 @@ with st.sidebar:
 
     def add_constraint():
         st.session_state.constraints.append({"c": 1.0, "d": 1.0, "sign": "≤", "b": 0.0})
+    
     def remove_constraint(i):
         st.session_state.constraints.pop(i)
 
     for i, cons in enumerate(st.session_state.constraints):
-        cols = st.columns([1, 0.2, 1, 0.3, 1, 0.9, 0.3])
+        cols = st.columns([0.8, 0.2, 0.8, 0.3, 0.8, 0.9, 0.3])
         with cols[0]:
-            cons["c"] = st.number_input("", value=cons["c"], key=f"c{i}")
+            cons["c"] = st.number_input("", value=cons["c"], key=f"c{i}", format="%.1f", step=0.1)
         with cols[1]:
-            st.write("x +")
+            st.markdown("<div style='text-align: center; margin-top: 10px;'>x +</div>", unsafe_allow_html=True)
         with cols[2]:
-            cons["d"] = st.number_input("", value=cons["d"], key=f"d{i}")
+            cons["d"] = st.number_input("", value=cons["d"], key=f"d{i}", format="%.1f", step=0.1)
         with cols[3]:
-            st.write("y")
+            st.markdown("<div style='text-align: center; margin-top: 10px;'>y</div>", unsafe_allow_html=True)
         with cols[4]:
             cons["sign"] = st.segmented_control(
                 "",
@@ -124,18 +127,18 @@ with st.sidebar:
                 key=f"sign{i}"
             )
         with cols[5]:
-            cons["b"] = st.number_input("", value=cons["b"], key=f"b{i}")
+            cons["b"] = st.number_input("", value=cons["b"], key=f"b{i}", format="%.1f", step=0.1)
         with cols[6]:
             if st.button("🗑", key=f"del{i}"):
                 remove_constraint(i)
-                st.experimental_rerun()
+                st.rerun()
 
     st.button("+ Добавить", on_click=add_constraint)
     solve = st.button("Решить")
     if st.button("Очистить"):
         st.session_state.constraints = []
         st.session_state.results = []
-        st.experimental_rerun()
+        st.rerun()
 
 
 st.title("📊 Линейное программирование — Решатель")
