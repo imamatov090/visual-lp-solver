@@ -8,7 +8,6 @@ st.set_page_config(page_title="Линейное программирование
 # 💅 CSS — dizayn va ranglar
 st.markdown("""
 <style>
-/* Segment tugmalar */
 .stSegmentedControl label {
     min-width: 65px !important;
     height: 38px !important;
@@ -28,8 +27,6 @@ st.markdown("""
     color: white !important;
     box-shadow: 0 0 6px rgba(0,123,255,0.4);
 }
-
-/* Tugmalar */
 .stButton > button {
     background-color: #007bff !important;
     color: white !important;
@@ -41,8 +38,6 @@ st.markdown("""
 .stButton > button:hover {
     background-color: #0056b3 !important;
 }
-
-/* Удалить */
 button[kind="secondary"] {
     background-color: #007bff !important;
     color: white !important;
@@ -51,8 +46,6 @@ button[kind="secondary"] {
 button[kind="secondary"]:hover {
     background-color: #0056b3 !important;
 }
-
-/* Gradient tarix kartochkasi */
 .result-card {
     background: linear-gradient(90deg, rgba(0,123,255,0.15) 0%, rgba(0,212,255,0.15) 100%);
     border-left: 5px solid #007bff;
@@ -221,8 +214,18 @@ if solve:
             name="⭐ Оптимум"
         ))
 
-    fig.update_layout(title="График решения", xaxis_title="x", yaxis_title="y",
-                      height=500, template="plotly_white")
+    # 🔹 Fonga setka qo'shish
+    fig.update_layout(
+        title="График решения",
+        xaxis_title="x",
+        yaxis_title="y",
+        height=500,
+        plot_bgcolor="rgba(245, 245, 245, 1)",  # kulrang fon
+        xaxis=dict(showgrid=True, gridcolor="lightgray", zeroline=True, zerolinecolor="gray"),
+        yaxis=dict(showgrid=True, gridcolor="lightgray", zeroline=True, zerolinecolor="gray"),
+        template="plotly_white"
+    )
+
     st.plotly_chart(fig, use_container_width=True)
 
 # --- Natijalar --- #
