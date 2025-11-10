@@ -135,30 +135,34 @@ with st.sidebar:
     def remove_constraint(i):
         st.session_state.constraints.pop(i)
 
-    for i, cons in enumerate(st.session_state.constraints):
-        cols = st.columns([1, 0.2, 1, 0.3, 1, 0.9, 0.3])
-        with cols[0]:
-            cons["c"] = st.number_input("", value=cons["c"], key=f"c{i}")
-        with cols[1]:
-            st.write("x +")
-        with cols[2]:
-            cons["d"] = st.number_input("", value=cons["d"], key=f"d{i}")
-        with cols[3]:
-            st.write("y")
-        with cols[4]:
-            cons["sign"] = st.segmented_control(
-                "",
-                ["≤", "≥", "="],
-                selection_mode="single",
-                default=cons["sign"],
-                key=f"sign{i}"
-            )
-        with cols[5]:
-            cons["b"] = st.number_input("", value=cons["b"], key=f"b{i}")
-        with cols[6]:
-            if st.button("🗑", key=f"del{i}"):
-                remove_constraint(i)
-                st.experimental_rerun()
+    # --- Cheklovlar (Ограничения) --- #
+for i, cons in enumerate(st.session_state.constraints):
+    st.markdown(f"""
+    <div style="
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 6px;
+        font-family: 'Cambria Math', 'Times New Roman', serif;
+        font-size: 17px;
+        margin-bottom: 6px;
+    ">
+        <input type="number" id="c{i}" value="{cons['c']}" step="0.1" 
+            style="width:70px; padding:4px; border-radius:5px; border:1px solid #ccc;">
+        *x +
+        <input type="number" id="d{i}" value="{cons['d']}" step="0.1"
+            style="width:70px; padding:4px; border-radius:5px; border:1px solid #ccc;">
+        *y
+        <select id="sign{i}" style="border:1.5px solid #007bff; border-radius:6px; padding:2px 6px; color:#007bff; font-weight:500;">
+            <option {'selected' if cons['sign']=='≤' else ''}>≤</option>
+            <option {'selected' if cons['sign']=='≥' else ''}>≥</option>
+            <option {'selected' if cons['sign']=='=' else ''}>=</option>
+        </select>
+        <input type="number" id="b{i}" value="{cons['b']}" step="0.1"
+            style="width:70px; padding:4px; border-radius:5px; border:1px solid #ccc;">
+        <button id="del{i}" style="background-color:#007bff;color:white;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;">🗑</button>
+    </div>
+    """, unsafe_allow_html=True)
 
     st.button("+ Добавить", on_click=add_constraint)
     solve = st.button("Решить")
