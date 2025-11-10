@@ -5,25 +5,20 @@ from itertools import combinations
 
 st.set_page_config(page_title="Линейное программирование — Решатель", layout="wide")
 
-# 💙 CSS — ko‘k rangli elementlar, soddalashgan
+# 💙 CSS — eski shakl (dumaloq) ammo ko‘k rangda
 st.markdown("""
 <style>
-/* Radiolarni ko‘k rangda */
-[data-testid="stRadio"] div[role="radiogroup"] > label {
+/* Radiolar (≤ ≥ =) ko‘k rangda, dumaloq */
+div[role="radiogroup"] label div:first-child {
     border: 2px solid #007bff !important;
-    border-radius: 6px !important;
-    padding: 3px 10px !important;
-    margin-right: 5px !important;
-    background-color: white !important;
-    color: #007bff !important;
-    font-weight: 500 !important;
+    border-radius: 50% !important;
 }
-[data-testid="stRadio"] div[role="radiogroup"] > label[data-checked="true"] {
+div[role="radiogroup"] input:checked + div:first-child {
     background-color: #007bff !important;
-    color: white !important;
+    border-color: #007bff !important;
 }
 
-/* Tugmalar */
+/* Tugmalar ko‘k */
 .stButton > button {
     background-color: #007bff !important;
     color: white !important;
@@ -36,7 +31,7 @@ st.markdown("""
     background-color: #0056b3 !important;
 }
 
-/* Удалить */
+/* “Удалить” tugmasi */
 button[kind="secondary"] {
     background-color: #007bff !important;
     color: white !important;
@@ -52,7 +47,8 @@ button[kind="secondary"]:hover {
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
 
-    col1, col2, col3, col4, col5, col6 = st.columns([1, 0.2, 1, 0.2, 0.6, 0.8])
+    # 🔹 bir qatorda: 5.3 * x + -7.1 * y → max
+    col1, col2, col3, col4, col5, col6 = st.columns([1, 0.2, 1, 0.2, 0.5, 0.8])
     with col1:
         a1 = st.number_input("", value=5.3, key="a1")
     with col2:
@@ -62,7 +58,7 @@ with st.sidebar:
     with col4:
         st.write("*y →")
     with col5:
-        opt_type = st.selectbox("", ["max", "min"], index=0, key="opt_type")
+        opt_type = st.radio("", ["max", "min"], horizontal=True, key="opt_type")
 
     st.markdown("### ✏️ Ограничения")
 
@@ -79,6 +75,7 @@ with st.sidebar:
     def remove_constraint(i):
         st.session_state.constraints.pop(i)
 
+    # 🔹 Cheklovlar
     for i, cons in enumerate(st.session_state.constraints):
         cols = st.columns([1, 0.2, 1, 0.3, 1, 0.8, 0.3])
         with cols[0]:
