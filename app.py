@@ -5,37 +5,56 @@ from itertools import combinations
 
 st.set_page_config(page_title="Линейное программирование — Решатель", layout="wide")
 
-# 🔹 --- STYLES: faqat dizayn uchun ---
+# 🔷 --- DIZAYN STILI (ko‘k rangli elementlar) ---
 st.markdown("""
 <style>
-/* Radiolarni (≤ ≥ =) ko'k rang bilan belgilash */
+/* 🔵 Radiolarni (≤ ≥ =) ko‘k rangda qilish */
+div[role="radiogroup"] label[data-testid="stRadioOption"] {
+    background-color: transparent !important;
+}
 div[role="radiogroup"] label[data-testid="stRadioOption"] div:first-child {
     border: 2px solid #1e90ff !important;
     background-color: white !important;
 }
-div[role="radiogroup"] label[data-testid="stRadioOption"]:has(input:checked) div:first-child {
+div[role="radiogroup"] label[data-testid="stRadioOption"] input:checked + div {
     background-color: #1e90ff !important;
     border-color: #1e90ff !important;
 }
-div[role="radiogroup"] label[data-testid="stRadioOption"]:has(input:checked) p {
-    color: #1e90ff !important;
+div[role="radiogroup"] label[data-testid="stRadioOption"] input:checked + div p {
+    color: white !important;
     font-weight: bold !important;
 }
 
-/* 🗑 delete tugmasini ko'k qilib */
-.stButton > button[kind="secondary"],
+/* 🔵 Tugmalar — gradientli ko‘k dizayn */
 .stButton > button {
-    background-color: #007bff !important;
+    background: linear-gradient(90deg, #007bff, #0056b3) !important;
     color: white !important;
     border-radius: 8px !important;
     border: none !important;
+    font-weight: 500 !important;
+    padding: 0.5rem 1rem !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15) !important;
 }
 .stButton > button:hover {
+    background: linear-gradient(90deg, #0056b3, #00408f) !important;
+    color: #fff !important;
+}
+
+/* 🔵 “Удалить” (🗑) tugmasini yumaloq va ko‘k qilish */
+button[kind="secondary"], div[data-testid="stButton"] > button[kind="secondary"] {
+    background-color: #007bff !important;
+    color: white !important;
+    border-radius: 50% !important;
+    padding: 0.4rem 0.6rem !important;
+    border: none !important;
+}
+button[kind="secondary"]:hover {
     background-color: #0056b3 !important;
 }
 </style>
 """, unsafe_allow_html=True)
-# 🔹 --- END STYLE ---
+# 🔷 --- DIZAYN TUGADI ---
+
 
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
@@ -170,17 +189,17 @@ if st.session_state.results:
 
     results = st.session_state.results
     for i, res in enumerate(reversed(results)):
-        st.latex(fr"f_{{{res['№']}}}(x, y) = {res['z']} \quad \text{{при}} \quad x={res['x']}, \; y={res['y']}")
+        st.latex(fr"f_{{{res['№']}}}(x, y) = {res['z']} \\quad \\text{{при}} \\quad x={res['x']}, \\; y={res['y']}")
 
     if len(results) >= 2:
         last = results[-1]
         prev = results[-2]
         if last["z"] > prev["z"]:
             st.success(f"📈 Новое решение лучше:")
-            st.latex(fr"f_{{{last['№']}}}({last['x']},{last['y']}) = {last['z']} \; > \; f_{{{prev['№']}}}({prev['x']},{prev['y']}) = {prev['z']}")
+            st.latex(fr"f_{{{last['№']}}}({last['x']},{last['y']}) = {last['z']} \\; > \\; f_{{{prev['№']}}}({prev['x']},{prev['y']}) = {prev['z']}")
         elif last["z"] < prev["z"]:
             st.error(f"📉 Новое решение хуже:")
-            st.latex(fr"f_{{{last['№']}}}({last['x']},{last['y']}) = {last['z']} \; < \; f_{{{prev['№']}}}({prev['x']},{prev['y']}) = {prev['z']}")
+            st.latex(fr"f_{{{last['№']}}}({last['x']},{last['y']}) = {last['z']} \\; < \\; f_{{{prev['№']}}}({prev['x']},{prev['y']}) = {prev['z']}")
         else:
             st.info(f"⚖️ Значения равны:")
             st.latex(fr"f_{{{last['№']}}} = f_{{{prev['№']}}} = {last['z']}")
