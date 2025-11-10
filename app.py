@@ -61,6 +61,14 @@ button[kind="secondary"]:hover {
     margin-top: 0.8rem;
     font-size: 15px;
 }
+
+/* Matnlar dizayni */
+.math-text {
+    font-family: "Cambria Math", "Times New Roman", serif;
+    font-style: italic;
+    font-size: 16px;
+    font-weight: 500;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -69,16 +77,16 @@ button[kind="secondary"]:hover {
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
 
-    # 🔹 Rasmda ko‘rsatilgan shakl: 4,0 * x + 3,0 * y →
-    col1, col2, col3, col4, col5, col6 = st.columns([1, 0.4, 1, 0.4, 0.4, 1.2])
+    # 🔹 Estetik matematik shakl: 4,00 × 𝑥 + 3,00 × 𝑦 →
+    col1, col2, col3, col4, col5, col6 = st.columns([1, 0.4, 1, 0.4, 0.5, 1.2])
     with col1:
         a1 = st.number_input("", value=4.0, key="a1")
     with col2:
-        st.markdown("*x +", unsafe_allow_html=True)
+        st.markdown('<p class="math-text">× 𝑥 +</p>', unsafe_allow_html=True)
     with col3:
         a2 = st.number_input("", value=3.0, key="a2")
     with col4:
-        st.markdown("*y →", unsafe_allow_html=True)
+        st.markdown('<p class="math-text">× 𝑦 →</p>', unsafe_allow_html=True)
     with col5:
         st.write("")
     with col6:
