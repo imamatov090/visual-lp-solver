@@ -77,25 +77,29 @@ button[kind="secondary"]:hover {
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
 
-    # Hammasini bir qatorda joylashtirish
-    col1, col2, col3, col4, col5 = st.columns([1.2, 0.6, 1.2, 0.6, 1])
-
-    with col1:
-        a1 = st.number_input("", value=4.0, step=0.1, key="a1", label_visibility="collapsed")
-    with col2:
-        st.markdown("<p style='font-size:17px;font-family:Cambria Math;'>*x +</p>", unsafe_allow_html=True)
-    with col3:
-        a2 = st.number_input("", value=3.0, step=0.1, key="a2", label_visibility="collapsed")
-    with col4:
-        st.markdown("<p style='font-size:17px;font-family:Cambria Math;'>*y →</p>", unsafe_allow_html=True)
-    with col5:
-        opt_type = st.radio(
-            "",
-            ["max", "min"],
-            horizontal=True,
-            key="opt_type",
-            label_visibility="collapsed"
-        )
+    # HTML yordamida 1 qatorda tartibli joylashtirish
+    st.markdown("""
+    <div style="
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 6px;
+        font-family: 'Cambria Math', 'Times New Roman', serif;
+        font-size: 18px;
+    ">
+        <input type="number" id="a1" value="4.0" step="0.1" style="width:65px; padding:4px; border-radius:5px; border:1px solid #ccc;">
+        *x 
+        <span style="font-size:19px; font-weight:bold;">+</span>
+        <input type="number" id="a2" value="3.0" step="0.1" style="width:65px; padding:4px; border-radius:5px; border:1px solid #ccc;">
+        *y →
+        <label style="display:flex; align-items:center; gap:4px; margin-left:6px;">
+            <input type="radio" name="opt" checked style="accent-color:#007bff;"> max
+        </label>
+        <label style="display:flex; align-items:center; gap:4px;">
+            <input type="radio" name="opt" style="accent-color:#007bff;"> min
+        </label>
+    </div>
+    """, unsafe_allow_html=True)
 
     st.markdown("### ✏️ Ограничения")
     if "constraints" not in st.session_state:
