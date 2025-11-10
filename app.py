@@ -5,27 +5,29 @@ from itertools import combinations
 
 st.set_page_config(page_title="Линейное программирование — Решатель", layout="wide")
 
-# 🔷 --- DIZAYN STILI (ko‘k, lekin dumaloq emas) ---
+# ✅ CSS – yangi usul bilan ko‘k rangli radio tugmalar
 st.markdown("""
 <style>
 /* 🔵 Radiolarni (≤ ≥ =) ko‘k rangda qilish */
-div[role="radiogroup"] label[data-testid="stRadioOption"] {
-    background-color: transparent !important;
-}
-div[role="radiogroup"] label[data-testid="stRadioOption"] div:first-child {
-    border: 2px solid #1e90ff !important;
+[data-testid="stRadio"] div[role="radiogroup"] > label {
+    border: 2px solid #007bff !important;
+    border-radius: 6px !important;
+    padding: 3px 10px !important;
+    margin-right: 5px !important;
     background-color: white !important;
+    color: #007bff !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
 }
-div[role="radiogroup"] label[data-testid="stRadioOption"] input:checked + div {
-    background-color: #1e90ff !important;
-    border-color: #1e90ff !important;
+[data-testid="stRadio"] div[role="radiogroup"] > label:hover {
+    background-color: #e6f0ff !important;
 }
-div[role="radiogroup"] label[data-testid="stRadioOption"] input:checked + div p {
+[data-testid="stRadio"] div[role="radiogroup"] > label[data-checked="true"] {
+    background-color: #007bff !important;
     color: white !important;
-    font-weight: bold !important;
 }
 
-/* 🔵 Tugmalar — kvadrat shaklli ko‘k dizayn */
+/* 🔵 Tugmalar — chiroyli kvadrat shaklda ko‘k */
 .stButton > button {
     background-color: #007bff !important;
     color: white !important;
@@ -37,10 +39,9 @@ div[role="radiogroup"] label[data-testid="stRadioOption"] input:checked + div p 
 }
 .stButton > button:hover {
     background-color: #0056b3 !important;
-    color: #fff !important;
 }
 
-/* 🔵 “Удалить” (🗑) tugmasini kvadrat shaklda va ko‘k rangda */
+/* 🔵 “Удалить” tugmasi */
 button[kind="secondary"], div[data-testid="stButton"] > button[kind="secondary"] {
     background-color: #007bff !important;
     color: white !important;
@@ -53,9 +54,8 @@ button[kind="secondary"]:hover {
 }
 </style>
 """, unsafe_allow_html=True)
-# 🔷 --- DIZAYN TUGADI ---
 
-
+# --- Asosiy UI ---
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
     a1 = st.number_input("Коэффициент при x", value=5.3, key="a1")
@@ -111,6 +111,7 @@ with st.sidebar:
 
 st.title("📊 Линейное программирование — Решатель")
 
+# --- Hisoblash qismi ---
 if solve:
     X = np.linspace(-20, 20, 600)
     lines = []
