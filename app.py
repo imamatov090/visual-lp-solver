@@ -214,15 +214,27 @@ if solve:
             name="⭐ Оптимум"
         ))
 
-    # 🔹 Fonga setka qo'shish
+    # 🔹 Fonga zich setka qo‘shish
     fig.update_layout(
         title="График решения",
         xaxis_title="x",
         yaxis_title="y",
         height=500,
-        plot_bgcolor="rgba(245, 245, 245, 1)",  # kulrang fon
-        xaxis=dict(showgrid=True, gridcolor="lightgray", zeroline=True, zerolinecolor="gray"),
-        yaxis=dict(showgrid=True, gridcolor="lightgray", zeroline=True, zerolinecolor="gray"),
+        plot_bgcolor="rgba(245, 245, 245, 1)",  # fon rangi
+        xaxis=dict(
+            showgrid=True,
+            gridcolor="lightgray",
+            zeroline=True,
+            zerolinecolor="gray",
+            dtick=1.5  # 🔹 zich setka
+        ),
+        yaxis=dict(
+            showgrid=True,
+            gridcolor="lightgray",
+            zeroline=True,
+            zerolinecolor="gray",
+            dtick=1.5  # 🔹 zich setka
+        ),
         template="plotly_white"
     )
 
