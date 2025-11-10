@@ -232,20 +232,26 @@ if solve:
         ))
 
         # ⭐ Optimum nuqta
-        fig.add_trace(go.Scatter(x=[ox], y=[oy], mode="markers+text",
-                                 text=[f"({ox:.2f},{oy:.2f})"], textposition="top center",
-                                 marker=dict(color="gold", size=12, line=dict(color="black", width=1)),
-                                 name="⭐ Оптимум"))
+        fig.add_trace(go.Scatter(
+            x=[ox], y=[oy],
+            mode="markers+text",
+            text=[f"({ox:.2f},{oy:.2f})"],
+            textposition="top center",
+            marker=dict(color="gold", size=12, line=dict(color="black", width=1)),
+            name="⭐ Оптимум"
+        ))
 
+    # 🔳 Setka — kichikroq oraliqda
     fig.update_layout(
         title="График решения",
         xaxis_title="x",
         yaxis_title="y",
         height=500,
         template="plotly_white",
-        xaxis=dict(showgrid=True, gridwidth=0.8, gridcolor="LightGray"),
-        yaxis=dict(showgrid=True, gridwidth=0.8, gridcolor="LightGray")
+        xaxis=dict(showgrid=True, gridwidth=0.6, gridcolor="LightGray", dtick=2),
+        yaxis=dict(showgrid=True, gridwidth=0.6, gridcolor="LightGray", dtick=2)
     )
+
     st.plotly_chart(fig, use_container_width=True)
 
 # --- Natijalar --- #
