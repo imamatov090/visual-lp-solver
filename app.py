@@ -75,53 +75,8 @@ button[kind="secondary"]:hover {
 
 # --- Sidebar --- #
 with st.sidebar:
-    st.markdown("### 🎯 Целевая функция")
-
-    # HTML ko‘rinish
-    st.markdown("""
-    <script>
-    const sendValues = () => {
-        const a1 = parseFloat(document.getElementById("a1").value);
-        const a2 = parseFloat(document.getElementById("a2").value);
-        const opt = document.querySelector('input[name="opt"]:checked').nextSibling.textContent.trim();
-        window.parent.postMessage({a1:a1, a2:a2, opt:opt}, "*");
-    };
-    document.addEventListener("input", sendValues);
-    </script>
-
-    <div style="
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        gap: 6px;
-        font-family: 'Cambria Math', 'Times New Roman', serif;
-        font-size: 18px;
-    ">
-        <input type="number" id="a1" value="4.0" step="0.1" style="width:65px; padding:4px; border-radius:5px; border:1px solid #ccc;">
-        *x 
-        <span style="font-size:19px; font-weight:bold;">+</span>
-        <input type="number" id="a2" value="3.0" step="0.1" style="width:65px; padding:4px; border-radius:5px; border:1px solid #ccc;">
-        *y →
-        <label style="display:flex; align-items:center; gap:4px; margin-left:6px;">
-            <input type="radio" name="opt" checked style="accent-color:#007bff;"> max
-        </label>
-        <label style="display:flex; align-items:center; gap:4px;">
-            <input type="radio" name="opt" style="accent-color:#007bff;"> min
-        </label>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # Fallback qiymatlar
-    if "a1" not in st.session_state: st.session_state.a1 = 4.0
-    if "a2" not in st.session_state: st.session_state.a2 = 3.0
-    if "opt_type" not in st.session_state: st.session_state.opt_type = "max"
-
-    # Ekranda yashirin soha orqali qiymatlar o‘qiladi
-    a1 = st.session_state.a1
-    a2 = st.session_state.a2
-    opt_type = st.session_state.opt_type
-
     st.markdown("### ✏️ Ограничения")
+
     if "constraints" not in st.session_state:
         st.session_state.constraints = [
             {"c": 3.2, "d": -2.0, "sign": "≤", "b": 3.0},
@@ -136,42 +91,41 @@ with st.sidebar:
         st.session_state.constraints.pop(i)
 
     # --- Cheklovlar (Ограничения) --- #
-for i, cons in enumerate(st.session_state.constraints):
-    st.markdown(f"""
-    <div style="
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        gap: 6px;
-        font-family: 'Cambria Math', 'Times New Roman', serif;
-        font-size: 17px;
-        margin-bottom: 6px;
-    ">
-        <input type="number" id="c{i}" value="{cons['c']}" step="0.1" 
-            style="width:70px; padding:4px; border-radius:5px; border:1px solid #ccc;">
-        *x +
-        <input type="number" id="d{i}" value="{cons['d']}" step="0.1"
-            style="width:70px; padding:4px; border-radius:5px; border:1px solid #ccc;">
-        *y
-        <select id="sign{i}" style="border:1.5px solid #007bff; border-radius:6px; padding:2px 6px; color:#007bff; font-weight:500;">
-            <option {'selected' if cons['sign']=='≤' else ''}>≤</option>
-            <option {'selected' if cons['sign']=='≥' else ''}>≥</option>
-            <option {'selected' if cons['sign']=='=' else ''}>=</option>
-        </select>
-        <input type="number" id="b{i}" value="{cons['b']}" step="0.1"
-            style="width:70px; padding:4px; border-radius:5px; border:1px solid #ccc;">
-        <button id="del{i}" style="background-color:#007bff;color:white;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;">🗑</button>
-    </div>
-    """, unsafe_allow_html=True)
+    for i, cons in enumerate(st.session_state.constraints):
+        st.markdown(f"""
+        <div style="
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 6px;
+            font-family: 'Cambria Math', 'Times New Roman', serif;
+            font-size: 17px;
+            margin-bottom: 6px;
+        ">
+            <input type="number" id="c{i}" value="{cons['c']}" step="0.1" 
+                style="width:70px; padding:4px; border-radius:5px; border:1px solid #ccc;">
+            *x +
+            <input type="number" id="d{i}" value="{cons['d']}" step="0.1"
+                style="width:70px; padding:4px; border-radius:5px; border:1px solid #ccc;">
+            *y
+            <select id="sign{i}" style="border:1.5px solid #007bff; border-radius:6px; padding:2px 6px; color:#007bff; font-weight:500;">
+                <option {'selected' if cons['sign']=='≤' else ''}>≤</option>
+                <option {'selected' if cons['sign']=='≥' else ''}>≥</option>
+                <option {'selected' if cons['sign']=='=' else ''}>=</option>
+            </select>
+            <input type="number" id="b{i}" value="{cons['b']}" step="0.1"
+                style="width:70px; padding:4px; border-radius:5px; border:1px solid #ccc;">
+            <button id="del{i}" style="background-color:#007bff;color:white;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;">🗑</button>
+        </div>
+        """, unsafe_allow_html=True)
 
-    st.button("+ Добавить", on_click=add_constraint)
-    solve = st.button("Решить")
-    if st.button("Очистить"):
+    # --- Tugmalar sikldan tashqarida --- #
+    st.button("+ Добавить", key="add_new_constraint", on_click=add_constraint)
+    solve = st.button("Решить", key="solve_button")
+    if st.button("Очистить", key="clear_all"):
         st.session_state.constraints = []
         st.session_state.results = []
         st.experimental_rerun()
-
-
 st.title("📊 Линейное программирование — Решатель")
 
 
