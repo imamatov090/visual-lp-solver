@@ -8,6 +8,7 @@ st.set_page_config(page_title="Линейное программирование
 # 💅 CSS — dizayn va ranglar
 st.markdown("""
 <style>
+/* Segment tugmalar */
 .stSegmentedControl label {
     min-width: 65px !important;
     height: 38px !important;
@@ -27,6 +28,8 @@ st.markdown("""
     color: white !important;
     box-shadow: 0 0 6px rgba(0,123,255,0.4);
 }
+
+/* Tugmalar */
 .stButton > button {
     background-color: #007bff !important;
     color: white !important;
@@ -38,14 +41,8 @@ st.markdown("""
 .stButton > button:hover {
     background-color: #0056b3 !important;
 }
-button[kind="secondary"] {
-    background-color: #007bff !important;
-    color: white !important;
-    border-radius: 6px !important;
-}
-button[kind="secondary"]:hover {
-    background-color: #0056b3 !important;
-}
+
+/* Gradient tarix kartochkasi */
 .result-card {
     background: linear-gradient(90deg, rgba(0,123,255,0.15) 0%, rgba(0,212,255,0.15) 100%);
     border-left: 5px solid #007bff;
@@ -54,6 +51,14 @@ button[kind="secondary"]:hover {
     margin-top: 0.8rem;
     font-size: 15px;
 }
+
+/* Matn dizayni */
+.math-text {
+    font-family: "Cambria Math", "Times New Roman", serif;
+    font-style: italic;
+    font-size: 16px;
+    font-weight: 500;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -61,50 +66,25 @@ button[kind="secondary"]:hover {
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
 
-    # HTML ko‘rinish
-    st.markdown("""
-    <script>
-    const sendValues = () => {
-        const a1 = parseFloat(document.getElementById("a1").value);
-        const a2 = parseFloat(document.getElementById("a2").value);
-        const opt = document.querySelector('input[name="opt"]:checked').nextSibling.textContent.trim();
-        window.parent.postMessage({a1:a1, a2:a2, opt:opt}, "*");
-    };
-    document.addEventListener("input", sendValues);
-    </script>
+    col1, col2, col3, col4, col5 = st.columns([1, 0.2, 1, 0.3, 1.2])
+    with col1:
+        a1 = st.number_input("", value=4.0, step=0.1, key="a1")
+    with col2:
+        st.markdown("*x +", unsafe_allow_html=True)
+    with col3:
+        a2 = st.number_input("", value=3.0, step=0.1, key="a2")
+    with col4:
+        st.markdown("*y →", unsafe_allow_html=True)
+    with col5:
+        opt_type = st.segmented_control(
+            "",
+            ["max", "min"],
+            selection_mode="single",
+            default="max",
+            key="opt_type"
+        )
 
-    <div style="
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        gap: 6px;
-        font-family: 'Cambria Math', 'Times New Roman', serif;
-        font-size: 18px;
-    ">
-        <input type="number" id="a1" value="4.0" step="0.1" style="width:65px; padding:4px; border-radius:5px; border:1px solid #ccc;">
-        *x 
-        <span style="font-size:19px; font-weight:bold;">+</span>
-        <input type="number" id="a2" value="3.0" step="0.1" style="width:65px; padding:4px; border-radius:5px; border:1px solid #ccc;">
-        *y →
-        <label style="display:flex; align-items:center; gap:4px; margin-left:6px;">
-            <input type="radio" name="opt" checked style="accent-color:#007bff;"> max
-        </label>
-        <label style="display:flex; align-items:center; gap:4px;">
-            <input type="radio" name="opt" style="accent-color:#007bff;"> min
-        </label>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # Fallback qiymatlar
-    if "a1" not in st.session_state: st.session_state.a1 = 4.0
-    if "a2" not in st.session_state: st.session_state.a2 = 3.0
-    if "opt_type" not in st.session_state: st.session_state.opt_type = "max"
-
-    # Ekranda yashirin soha orqali qiymatlar o‘qiladi
-    a1 = st.session_state.a1
-    a2 = st.session_state.a2
-    opt_type = st.session_state.opt_type
-
+    # --- Ограничения --- #
     st.markdown("### ✏️ Ограничения")
 
     if "constraints" not in st.session_state:
@@ -120,16 +100,17 @@ with st.sidebar:
     def remove_constraint(i):
         st.session_state.constraints.pop(i)
 
+    # Cheklovlar
     for i, cons in enumerate(st.session_state.constraints):
-        cols = st.columns([1, 0.2, 1, 0.3, 1, 0.9, 0.3])
+        cols = st.columns([1, 0.25, 1, 0.3, 1.2, 0.5])
         with cols[0]:
-            cons["c"] = st.number_input("", value=cons["c"], key=f"c{i}")
+            cons["c"] = st.number_input("", value=cons["c"], step=0.1, key=f"c{i}")
         with cols[1]:
-            st.write("x +")
+            st.markdown("*x +", unsafe_allow_html=True)
         with cols[2]:
-            cons["d"] = st.number_input("", value=cons["d"], key=f"d{i}")
+            cons["d"] = st.number_input("", value=cons["d"], step=0.1, key=f"d{i}")
         with cols[3]:
-            st.write("y")
+            st.markdown("*y", unsafe_allow_html=True)
         with cols[4]:
             cons["sign"] = st.segmented_control(
                 "",
@@ -139,15 +120,11 @@ with st.sidebar:
                 key=f"sign{i}"
             )
         with cols[5]:
-            cons["b"] = st.number_input("", value=cons["b"], key=f"b{i}")
-        with cols[6]:
-            if st.button("🗑", key=f"del{i}"):
-                remove_constraint(i)
-                st.experimental_rerun()
+            cons["b"] = st.number_input("", value=cons["b"], step=0.1, key=f"b{i}")
 
-    st.button("+ Добавить", on_click=add_constraint)
-    solve = st.button("Решить")
-    if st.button("Очистить"):
+    st.button("+ Добавить", key="add_new_constraint", on_click=add_constraint)
+    solve = st.button("Решить", key="solve_button")
+    if st.button("Очистить", key="clear_all"):
         st.session_state.constraints = []
         st.session_state.results = []
         st.experimental_rerun()
@@ -194,6 +171,7 @@ if solve:
         z = [a1 * x + a2 * y for (x, y) in feas]
         best = np.argmax(z) if opt_type == "max" else np.argmin(z)
         ox, oy, zopt = *feas[best], z[best]
+
         st.session_state.results = st.session_state.results[-4:]
         result_id = len(st.session_state.results) + 1
         st.session_state.results.append({
@@ -207,10 +185,8 @@ if solve:
         ox = oy = zopt = None
 
     fig = go.Figure()
-    colors = [
-        "rgba(0,123,255,0.3)", "rgba(255,152,0,0.3)", "rgba(156,39,176,0.3)",
-        "rgba(76,175,80,0.3)", "rgba(244,67,54,0.3)", "rgba(121,85,72,0.3)"
-    ]
+    colors = ["rgba(0,123,255,0.3)", "rgba(255,152,0,0.3)", "rgba(156,39,176,0.3)",
+              "rgba(76,175,80,0.3)", "rgba(244,67,54,0.3)", "rgba(121,85,72,0.3)"]
 
     for i, (c, d, b, sign) in enumerate(lines):
         Y = (b - c * X) / d
@@ -222,58 +198,55 @@ if solve:
             name=f"{c:.2f}x + {d:.2f}y {sign} {b:.2f}"
         ))
 
-    # 🔹 Целевая прямая (qora nuqtali chiziq)
-    if feas and ox is not None:
-        Y_line = (zopt - a1 * X) / a2
-        fig.add_trace(go.Scatter(
-            x=X, y=Y_line,
-            mode="lines",
-            line=dict(color="black", width=2, dash="dot"),
-            name=f"Целевая прямая: {a1:.2f}x + {a2:.2f}y = {zopt:.2f}"
-        ))
-
+    # 🔹 Max / Min chiziqlar
     if feas:
+        z_line = zopt
+        x_split = ox
+        y_split = (z_line - a1 * x_split) / a2
+
+        X_left = X[X <= x_split]
+        X_right = X[X >= x_split]
+        Y_left = (z_line - a1 * X_left) / a2
+        Y_right = (z_line - a1 * X_right) / a2
+
         fig.add_trace(go.Scatter(
-            x=[ox], y=[oy],
-            mode="markers+text",
-            text=[f"({ox:.2f},{oy:.2f})"], textposition="top center",
+            x=X_left, y=Y_left, mode="lines",
+            line=dict(color="blue", width=3, dash="dot"),
+            name="Минимум (голубой)"
+        ))
+        fig.add_trace(go.Scatter(
+            x=X_right, y=Y_right, mode="lines",
+            line=dict(color="red", width=3, dash="dot"),
+            name="Максимум (красный)"
+        ))
+        fig.add_trace(go.Scatter(
+            x=[ox], y=[oy], mode="markers+text",
+            text=[f"({ox:.2f},{oy:.2f})"],
+            textposition="top center",
             marker=dict(color="gold", size=12, line=dict(color="black", width=1)),
             name="⭐ Оптимум"
         ))
 
-    # 🔹 Fonga setka (o‘rta razmer, dtick=4)
     fig.update_layout(
         title="График решения",
-        xaxis_title="x",
-        yaxis_title="y",
-        height=500,
-        plot_bgcolor="rgba(245,245,245,1)",
-        xaxis=dict(
-            showgrid=True, gridcolor="lightgray",
-            zeroline=True, zerolinecolor="gray",
-            dtick=4  # o‘rta kattalikda setka
-        ),
-        yaxis=dict(
-            showgrid=True, gridcolor="lightgray",
-            zeroline=True, zerolinecolor="gray",
-            dtick=4
-        ),
-        template="plotly_white"
+        xaxis_title="x", yaxis_title="y",
+        height=500, template="plotly_white",
+        xaxis=dict(showgrid=True, gridwidth=0.6, gridcolor="LightGray", dtick=2),
+        yaxis=dict(showgrid=True, gridwidth=0.6, gridcolor="LightGray", dtick=2)
     )
 
     st.plotly_chart(fig, use_container_width=True)
 
-# --- Natijalar --- #
+# --- Tarix (natijalar) --- #
 if st.session_state.results:
     st.markdown("### 🧮 История решений (значения функции)")
-
     for res in reversed(st.session_state.results):
-        bg_color = "#e3f2fd" if res["type"] == "max" else "#f1f8e9"
+        bg = "rgba(255, 0, 0, 0.1)" if res["type"] == "max" else "rgba(0, 123, 255, 0.1)"
+        border = "red" if res["type"] == "max" else "blue"
         st.markdown(
-            f"<div class='result-card' style='background:{bg_color};'>"
+            f"<div style='background:{bg}; border-left:5px solid {border}; border-radius:10px; padding:0.8rem 1rem; margin-top:0.8rem;'>"
             f"<b>f<sub>{res['№']}</sub>(x, y)</b> = {res['z']} &nbsp;&nbsp; "
             f"<i>при</i> (x = {res['x']}, y = {res['y']}) &nbsp;&nbsp; "
-            f"<b>Тип:</b> {res['type'].upper()}"
-            f"</div>",
+            f"<b>Тип:</b> {res['type'].upper()}</div>",
             unsafe_allow_html=True
         )
