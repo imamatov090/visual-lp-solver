@@ -61,54 +61,30 @@ button[kind="secondary"]:hover {
     margin-top: 0.8rem;
     font-size: 15px;
 }
-
-/* ✅ YANGI: Inputlarni markazlashtirish */
-.stNumberInput > div > div {
-    text-align: center;
-}
-
-/* ✅ YANGI: Tugmalarni kichikroq qilish */
-.stButton > button {
-    padding: 0.25rem 0.5rem !important;
-    font-size: 12px !important;
-}
-
-/* ✅ YANGI: Segment control markazida */
-.stSegmentedControl {
-    justify-content: center;
-}
 </style>
 """, unsafe_allow_html=True)
 
-# --- Session state initialization --- #
-if "constraints" not in st.session_state:
-    st.session_state.constraints = [
-        {"c": 3.2, "d": -2.0, "sign": "≤", "b": 3.0},
-        {"c": 1.6, "d": 2.3, "sign": "≤", "b": -5.0},
-    ]
-
-if "results" not in st.session_state:
-    st.session_state.results = []
 
 # --- Sidebar --- #
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
-    
-    # Haqiqiy inputlar
-    col1, col2, col3 = st.columns(3)
+
+    col1, col2, col3, col4, col5 = st.columns([1, 0.2, 1, 0.2, 1.2])
     with col1:
-        a1 = st.number_input("a1", value=4.0, key="a1", format="%.1f", step=0.1, label_visibility="collapsed")
+        a1 = st.number_input("", value=5.3, key="a1")
     with col2:
-        a2 = st.number_input("a2", value=3.0, key="a2", format="%.1f", step=0.1, label_visibility="collapsed")
+        st.write("*x +")
     with col3:
-        opt_type = st.segmented_control("", ["max", "min"], default="max", key="opt_type")
-    
-    # Ko'rinadigan qism - aynan rasmdagidek
-    st.markdown(f"""
-    <div style='text-align: center; font-size: 16px; font-family: Arial; margin: 10px 0;'>
-        {a1:.1f}&nbsp;&nbsp;&nbsp;&nbsp;*x +&nbsp;&nbsp;&nbsp;&nbsp;{a2:.1f}&nbsp;&nbsp;&nbsp;&nbsp;*y →&nbsp;&nbsp;&nbsp;&nbsp;{opt_type}
-    </div>
-    """, unsafe_allow_html=True)
+        a2 = st.number_input("", value=-7.1, key="a2")
+    with col4:
+        st.write("*y →")
+    with col5:
+        opt_type = st.segmented_control(
+            "", ["max", "min"],
+            selection_mode="single",
+            default="max",
+            key="opt_type"
+        )
 
     st.markdown("### ✏️ Ограничения")
 
@@ -117,43 +93,49 @@ with st.sidebar:
             {"c": 3.2, "d": -2.0, "sign": "≤", "b": 3.0},
             {"c": 1.6, "d": 2.3, "sign": "≤", "b": -5.0},
         ]
+    if "results" not in st.session_state:
+        st.session_state.results = []
 
     def add_constraint():
         st.session_state.constraints.append({"c": 1.0, "d": 1.0, "sign": "≤", "b": 0.0})
-
     def remove_constraint(i):
         st.session_state.constraints.pop(i)
 
     for i, cons in enumerate(st.session_state.constraints):
-        # Haqiqiy inputlar
-        cols = st.columns([2, 2, 1, 2, 1])
+        cols = st.columns([1, 0.2, 1, 0.3, 1, 0.9, 0.3])
         with cols[0]:
-            cons["c"] = st.number_input("c", value=cons["c"], key=f"c{i}", format="%.1f", step=0.1, label_visibility="collapsed")
+            cons["c"] = st.number_input("", value=cons["c"], key=f"c{i}")
         with cols[1]:
-            cons["d"] = st.number_input("d", value=cons["d"], key=f"d{i}", format="%.1f", step=0.1, label_visibility="collapsed")
+            st.write("x +")
         with cols[2]:
-            cons["sign"] = st.segmented_control("", ["≤", "≥", "="], default=cons["sign"], key=f"sign{i}")
+            cons["d"] = st.number_input("", value=cons["d"], key=f"d{i}")
         with cols[3]:
-            cons["b"] = st.number_input("b", value=cons["b"], key=f"b{i}", format="%.1f", step=0.1, label_visibility="collapsed")
+            st.write("y")
         with cols[4]:
+            cons["sign"] = st.segmented_control(
+                "",
+                ["≤", "≥", "="],
+                selection_mode="single",
+                default=cons["sign"],
+                key=f"sign{i}"
+            )
+        with cols[5]:
+            cons["b"] = st.number_input("", value=cons["b"], key=f"b{i}")
+        with cols[6]:
             if st.button("🗑", key=f"del{i}"):
                 remove_constraint(i)
-                st.rerun()
-        
-        # Ko'rinadigan qism - cheklovlar ham shu ko'rinishda
-        st.markdown(f"""
-        <div style='text-align: center; font-size: 14px; font-family: Arial; margin: 5px 0;'>
-            {cons['c']:.1f}&nbsp;&nbsp;&nbsp;&nbsp;x +&nbsp;&nbsp;&nbsp;&nbsp;{cons['d']:.1f}&nbsp;&nbsp;&nbsp;&nbsp;y&nbsp;&nbsp;&nbsp;&nbsp;{cons['sign']}&nbsp;&nbsp;&nbsp;&nbsp;{cons['b']:.1f}
-        </div>
-        """, unsafe_allow_html=True)
+                st.experimental_rerun()
 
     st.button("+ Добавить", on_click=add_constraint)
     solve = st.button("Решить")
     if st.button("Очистить"):
         st.session_state.constraints = []
         st.session_state.results = []
-        st.rerun()
+        st.experimental_rerun()
+
+
 st.title("📊 Линейное программирование — Решатель")
+
 
 # --- Hisoblash qismi --- #
 if solve:
@@ -202,9 +184,9 @@ if solve:
         result_id = len(st.session_state.results) + 1
         st.session_state.results.append({
             "№": result_id,
-            "x": round(ox, 1),
-            "y": round(oy, 1),
-            "z": round(zopt, 1),
+            "x": round(ox, 3),
+            "y": round(oy, 3),
+            "z": round(zopt, 3),
             "type": opt_type
         })
     else:
@@ -221,7 +203,7 @@ if solve:
             line=dict(color=colors[i % len(colors)].replace("0.3", "1.0"), width=2),
             fill="tonexty" if sign in ["≤", "≥"] else None,
             fillcolor=colors[i % len(colors)],
-            name=f"{c:.1f}x + {d:.1f}y {sign} {b:.1f}"
+            name=f"{c:.2f}x + {d:.2f}y {sign} {b:.2f}"
         ))
 
     # 🔹 Целевая прямая — ikki rangli (qizil / ko‘k)
@@ -253,13 +235,13 @@ if solve:
         fig.add_trace(go.Scatter(
             x=[ox], y=[oy],
             mode="markers+text",
-            text=[f"({ox:.1f},{oy:.1f})"],
+            text=[f"({ox:.2f},{oy:.2f})"],
             textposition="top center",
             marker=dict(color="gold", size=12, line=dict(color="black", width=1)),
             name="⭐ Оптимум"
         ))
 
-    # 🔳 Setka — kichikroq oraliqda (har 2 birlikda)
+    # 🔳 Setka — kichikroq oraliqda
     fig.update_layout(
         title="График решения",
         xaxis_title="x",
