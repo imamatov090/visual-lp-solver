@@ -69,18 +69,22 @@ button[kind="secondary"]:hover {
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
 
-    col1, col2, col3, col4, col5 = st.columns([1, 0.2, 1, 0.2, 1.2])
+    # 🔹 Rasmda ko‘rsatilgan shakl: 4,0 * x + 3,0 * y →
+    col1, col2, col3, col4, col5, col6 = st.columns([1, 0.4, 1, 0.4, 0.4, 1.2])
     with col1:
-        a1 = st.number_input("", value=5.3, key="a1")
+        a1 = st.number_input("", value=4.0, key="a1")
     with col2:
-        st.write("*x +")
+        st.markdown("*x +", unsafe_allow_html=True)
     with col3:
-        a2 = st.number_input("", value=-7.1, key="a2")
+        a2 = st.number_input("", value=3.0, key="a2")
     with col4:
-        st.write("*y →")
+        st.markdown("*y →", unsafe_allow_html=True)
     with col5:
+        st.write("")
+    with col6:
         opt_type = st.segmented_control(
-            "", ["max", "min"],
+            "",
+            ["max", "min"],
             selection_mode="single",
             default="max",
             key="opt_type"
@@ -241,7 +245,7 @@ if solve:
             name="⭐ Оптимум"
         ))
 
-    # 🔳 Setka — kichikroq oraliqda
+    # 🔳 Setka — kichikroq oraliqda (har 2 birlikda)
     fig.update_layout(
         title="График решения",
         xaxis_title="x",
