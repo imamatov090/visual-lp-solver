@@ -5,7 +5,7 @@ from itertools import combinations
 
 st.set_page_config(page_title="Линейное программирование — Решатель", layout="wide")
 
-# 🔷 --- DIZAYN STILI (ko‘k rangli elementlar) ---
+# 🔷 --- DIZAYN STILI (ko‘k, lekin dumaloq emas) ---
 st.markdown("""
 <style>
 /* 🔵 Radiolarni (≤ ≥ =) ko‘k rangda qilish */
@@ -25,26 +25,26 @@ div[role="radiogroup"] label[data-testid="stRadioOption"] input:checked + div p 
     font-weight: bold !important;
 }
 
-/* 🔵 Tugmalar — gradientli ko‘k dizayn */
+/* 🔵 Tugmalar — kvadrat shaklli ko‘k dizayn */
 .stButton > button {
-    background: linear-gradient(90deg, #007bff, #0056b3) !important;
+    background-color: #007bff !important;
     color: white !important;
-    border-radius: 8px !important;
+    border-radius: 6px !important;
     border: none !important;
     font-weight: 500 !important;
     padding: 0.5rem 1rem !important;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.15) !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
 }
 .stButton > button:hover {
-    background: linear-gradient(90deg, #0056b3, #00408f) !important;
+    background-color: #0056b3 !important;
     color: #fff !important;
 }
 
-/* 🔵 “Удалить” (🗑) tugmasini yumaloq va ko‘k qilish */
+/* 🔵 “Удалить” (🗑) tugmasini kvadrat shaklda va ko‘k rangda */
 button[kind="secondary"], div[data-testid="stButton"] > button[kind="secondary"] {
     background-color: #007bff !important;
     color: white !important;
-    border-radius: 50% !important;
+    border-radius: 6px !important;
     padding: 0.4rem 0.6rem !important;
     border: none !important;
 }
