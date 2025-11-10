@@ -66,7 +66,7 @@ st.markdown("""
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
 
-    # 🔹 Bir qatordagi chiroyli HTML ko‘rinish
+    # 🔹 Chiroyli bir qatordagi formula
     st.markdown("""
     <div style="
         display: flex;
@@ -86,7 +86,7 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-    # 🔹 Max/Min tanlov — bir qatorda, hech qanday “tanlang” yozuvsiz
+    # 🔹 Max / Min tanlov tugmalari — bitta qatorda
     opt_type = st.radio(
         "",
         options=["max", "min"],
@@ -96,11 +96,10 @@ with st.sidebar:
         key="opt_type"
     )
 
-    # 🔹 Qiymatlar (Python uchun haqiqiy inputlar)
-    a1 = st.number_input("Koef. a1", value=4.0, step=0.1, key="a1", label_visibility="collapsed")
-    a2 = st.number_input("Koef. a2", value=3.0, step=0.1, key="a2", label_visibility="collapsed")
+    # ❌ Pastdagi yashirin number_input lar olib tashlandi
 
     st.markdown("### ✏️ Ограничения")
+
 
     if "constraints" not in st.session_state:
         st.session_state.constraints = [
