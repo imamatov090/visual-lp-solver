@@ -5,7 +5,38 @@ from itertools import combinations
 
 st.set_page_config(page_title="Линейное программирование — Решатель", layout="wide")
 
-# --- Sidebar ---
+# 🔹 --- STYLES: faqat dizayn uchun ---
+st.markdown("""
+<style>
+/* Radiolarni (≤ ≥ =) ko'k rang bilan belgilash */
+div[role="radiogroup"] label[data-testid="stRadioOption"] div:first-child {
+    border: 2px solid #1e90ff !important;
+    background-color: white !important;
+}
+div[role="radiogroup"] label[data-testid="stRadioOption"]:has(input:checked) div:first-child {
+    background-color: #1e90ff !important;
+    border-color: #1e90ff !important;
+}
+div[role="radiogroup"] label[data-testid="stRadioOption"]:has(input:checked) p {
+    color: #1e90ff !important;
+    font-weight: bold !important;
+}
+
+/* 🗑 delete tugmasini ko'k qilib */
+.stButton > button[kind="secondary"],
+.stButton > button {
+    background-color: #007bff !important;
+    color: white !important;
+    border-radius: 8px !important;
+    border: none !important;
+}
+.stButton > button:hover {
+    background-color: #0056b3 !important;
+}
+</style>
+""", unsafe_allow_html=True)
+# 🔹 --- END STYLE ---
+
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
     a1 = st.number_input("Коэффициент при x", value=5.3, key="a1")
@@ -18,9 +49,6 @@ with st.sidebar:
         st.session_state.constraints = [
             {"c": 3.2, "d": -2.0, "sign": "≤", "b": 3.0},
             {"c": 1.6, "d": 2.3, "sign": "≤", "b": -5.0},
-            {"c": 3.2, "d": -6.0, "sign": "≥", "b": 7.0},
-            {"c": 7.0, "d": -2.0, "sign": "≤", "b": 10.0},
-            {"c": -6.5, "d": 3.0, "sign": "≤", "b": 9.0},
         ]
     if "results" not in st.session_state:
         st.session_state.results = []
@@ -62,7 +90,6 @@ with st.sidebar:
         st.session_state.results = []
         st.experimental_rerun()
 
-# --- Main ---
 st.title("📊 Линейное программирование — Решатель")
 
 if solve:
@@ -114,15 +141,9 @@ if solve:
     else:
         ox = oy = zopt = None
 
-    # --- Grafik ---
     fig = go.Figure()
-    colors = [
-        "rgba(33,150,243,0.3)",
-        "rgba(255,193,7,0.3)",
-        "rgba(156,39,176,0.3)",
-        "rgba(76,175,80,0.3)",
-        "rgba(244,67,54,0.3)"
-    ]
+    colors = ["rgba(0,123,255,0.3)", "rgba(255,152,0,0.3)", "rgba(156,39,176,0.3)",
+              "rgba(76,175,80,0.3)", "rgba(244,67,54,0.3)", "rgba(121,85,72,0.3)"]
 
     for i,(c,d,b,sign) in enumerate(lines):
         Y = (b - c*X) / d
@@ -136,23 +157,14 @@ if solve:
 
     if feas:
         fig.add_trace(go.Scatter(x=[ox], y=[oy], mode="markers+text",
-                                 text=[f"({ox:.2f}, {oy:.2f})"], textposition="top center",
+                                 text=[f"({ox:.2f},{oy:.2f})"], textposition="top center",
                                  marker=dict(color="gold", size=12, line=dict(color="black", width=1)),
                                  name="⭐ Оптимум"))
 
-    fig.update_layout(
-        title="График решения",
-        xaxis_title="x",
-        yaxis_title="y",
-        height=550,
-        template="plotly_white",
-        xaxis=dict(range=[-15, 15]),
-        yaxis=dict(range=[-15, 15]),
-        legend=dict(x=0.75, y=1)
-    )
+    fig.update_layout(title="График решения", xaxis_title="x", yaxis_title="y",
+                      height=500, template="plotly_white")
     st.plotly_chart(fig, use_container_width=True)
 
-# --- История решений ---
 if st.session_state.results:
     st.markdown("### 🧮 История решений (значения функции)")
 
@@ -164,11 +176,11 @@ if st.session_state.results:
         last = results[-1]
         prev = results[-2]
         if last["z"] > prev["z"]:
-            st.success("📈 Новое решение лучше:")
+            st.success(f"📈 Новое решение лучше:")
             st.latex(fr"f_{{{last['№']}}}({last['x']},{last['y']}) = {last['z']} \; > \; f_{{{prev['№']}}}({prev['x']},{prev['y']}) = {prev['z']}")
         elif last["z"] < prev["z"]:
-            st.error("📉 Новое решение хуже:")
+            st.error(f"📉 Новое решение хуже:")
             st.latex(fr"f_{{{last['№']}}}({last['x']},{last['y']}) = {last['z']} \; < \; f_{{{prev['№']}}}({prev['x']},{prev['y']}) = {prev['z']}")
         else:
-            st.info("⚖️ Значения равны:")
+            st.info(f"⚖️ Значения равны:")
             st.latex(fr"f_{{{last['№']}}} = f_{{{prev['№']}}} = {last['z']}")
