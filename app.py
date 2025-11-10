@@ -77,31 +77,25 @@ button[kind="secondary"]:hover {
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
 
-    # HTML orqali chiroyli bir qatordagi ko‘rinish
-    st.markdown("""
-    <div style="
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        gap: 6px;
-        font-family: 'Cambria Math', 'Times New Roman', serif;
-        font-style: italic;
-        font-size: 18px;
-    ">
-        <span>4.0 × 𝑥 + 3.0 × 𝑦 →</span>
-        <span style="font-style:normal;">
-            <select style="border:1.5px solid #007bff; border-radius:6px; padding:2px 6px; color:#007bff; font-weight:500;">
-                <option>max</option>
-                <option>min</option>
-            </select>
-        </span>
-    </div>
-    """, unsafe_allow_html=True)
+    # Hammasini 1 qatorda chiqaramiz
+    col1, col2, col3, col4, col5, col6, col7 = st.columns([1, 0.3, 1, 0.3, 0.5, 0.3, 1])
 
-    # 🔹 Lekin haqiqiy qiymatlar (hisoblash uchun)
-    a1 = st.number_input("Коэффициент при x", value=4.0, key="a1", label_visibility="collapsed")
-    a2 = st.number_input("Коэффициент при y", value=3.0, key="a2", label_visibility="collapsed")
-    opt_type = st.radio("Тип оптимизации:", ["max", "min"], horizontal=True, label_visibility="collapsed")
+    with col1:
+        a1 = st.number_input("", value=4.0, step=0.1, key="a1", label_visibility="collapsed")
+    with col2:
+        st.markdown("<p style='font-size:17px;font-family:Cambria Math;'>× x +</p>", unsafe_allow_html=True)
+    with col3:
+        a2 = st.number_input("", value=3.0, step=0.1, key="a2", label_visibility="collapsed")
+    with col4:
+        st.markdown("<p style='font-size:17px;font-family:Cambria Math;'>× y →</p>", unsafe_allow_html=True)
+    with col5:
+        opt_type = st.segmented_control(
+            "",
+            ["max", "min"],
+            selection_mode="single",
+            default="max",
+            key="opt_type"
+        )
 
     st.markdown("### ✏️ Ограничения")
     if "constraints" not in st.session_state:
