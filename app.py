@@ -5,11 +5,85 @@ from itertools import combinations
 
 st.set_page_config(page_title="Линейное программирование — Решатель", layout="wide")
 
+# 💅 CSS — dizayn va ranglar
+st.markdown("""
+<style>
+/* Segment tugmalar */
+.stSegmentedControl label {
+    min-width: 65px !important;
+    height: 38px !important;
+    border-radius: 10px !important;
+    border: 1.5px solid #007bff !important;
+    background-color: #f8f9fa !important;
+    color: #007bff !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease-in-out;
+    white-space: nowrap !important;
+}
+.stSegmentedControl label[data-checked="true"] {
+    background-color: #007bff !important;
+    color: white !important;
+    box-shadow: 0 0 6px rgba(0,123,255,0.4);
+}
+
+/* Tugmalar */
+.stButton > button {
+    background-color: #007bff !important;
+    color: white !important;
+    border-radius: 6px !important;
+    border: none !important;
+    font-weight: 500 !important;
+    padding: 0.5rem 1rem !important;
+}
+.stButton > button:hover {
+    background-color: #0056b3 !important;
+}
+
+/* Удалить */
+button[kind="secondary"] {
+    background-color: #007bff !important;
+    color: white !important;
+    border-radius: 6px !important;
+}
+button[kind="secondary"]:hover {
+    background-color: #0056b3 !important;
+}
+
+/* Gradient tarix kartochkasi */
+.result-card {
+    background: linear-gradient(90deg, rgba(0,123,255,0.15) 0%, rgba(0,212,255,0.15) 100%);
+    border-left: 5px solid #007bff;
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    margin-top: 0.8rem;
+    font-size: 15px;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# --- Sidebar --- #
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
-    a1 = st.number_input("Коэффициент при x", value=5.3, key="a1")
-    a2 = st.number_input("Коэффициент при y", value=-7.1, key="a2")
-    opt_type = st.radio("Тип оптимизации:", ["max", "min"], horizontal=True)
+
+    col1, col2, col3, col4, col5 = st.columns([1, 0.2, 1, 0.2, 1.2])
+    with col1:
+        a1 = st.number_input("", value=5.3, key="a1")
+    with col2:
+        st.write("*x +")
+    with col3:
+        a2 = st.number_input("", value=-7.1, key="a2")
+    with col4:
+        st.write("*y →")
+    with col5:
+        opt_type = st.segmented_control(
+            "", ["max", "min"],
+            selection_mode="single",
+            default="max",
+            key="opt_type"
+        )
 
     st.markdown("### ✏️ Ограничения")
 
@@ -23,12 +97,11 @@ with st.sidebar:
 
     def add_constraint():
         st.session_state.constraints.append({"c": 1.0, "d": 1.0, "sign": "≤", "b": 0.0})
-
     def remove_constraint(i):
         st.session_state.constraints.pop(i)
 
     for i, cons in enumerate(st.session_state.constraints):
-        cols = st.columns([1, 0.2, 1, 0.3, 1, 0.8, 0.3])
+        cols = st.columns([1, 0.2, 1, 0.3, 1, 0.9, 0.3])
         with cols[0]:
             cons["c"] = st.number_input("", value=cons["c"], key=f"c{i}")
         with cols[1]:
@@ -38,11 +111,11 @@ with st.sidebar:
         with cols[3]:
             st.write("y")
         with cols[4]:
-            cons["sign"] = st.radio(
+            cons["sign"] = st.segmented_control(
                 "",
                 ["≤", "≥", "="],
-                index=["≤", "≥", "="].index(cons["sign"]),
-                horizontal=True,
+                selection_mode="single",
+                default=cons["sign"],
                 key=f"sign{i}"
             )
         with cols[5]:
@@ -61,6 +134,7 @@ with st.sidebar:
 
 st.title("📊 Линейное программирование — Решатель")
 
+# --- Hisoblash qismi --- #
 if solve:
     X = np.linspace(-20, 20, 600)
     lines = []
@@ -100,6 +174,7 @@ if solve:
         z = [a1 * x + a2 * y for (x, y) in feas]
         best = np.argmax(z) if opt_type == "max" else np.argmin(z)
         ox, oy, zopt = *feas[best], z[best]
+        st.session_state.results = st.session_state.results[-4:]
         result_id = len(st.session_state.results) + 1
         st.session_state.results.append({
             "№": result_id,
@@ -124,22 +199,23 @@ if solve:
             line=dict(color=colors[i % len(colors)].replace("0.3", "1.0"), width=2),
             fill="tonexty" if sign in ["≤", "≥"] else None,
             fillcolor=colors[i % len(colors)],
-            name=f"{c:.2f} * x + {d:.2f} * y {sign} {b:.2f}"
+            name=f"{c:.2f}x + {d:.2f}y {sign} {b:.2f}"
         ))
 
-    # 🔹 Целевая прямая (maqsad chizig‘i)
+    # 🔹 Целевая прямая (qora nuqtali chiziq)
     if feas and ox is not None:
         Y_line = (zopt - a1 * X) / a2
         fig.add_trace(go.Scatter(
             x=X, y=Y_line,
             mode="lines",
             line=dict(color="black", width=2, dash="dot"),
-            name=f"Целевая прямая: {a1:.2f} * x + {a2:.2f} * y = {zopt:.2f}"
+            name=f"Целевая прямая: {a1:.2f}x + {a2:.2f}y = {zopt:.2f}"
         ))
 
     if feas:
         fig.add_trace(go.Scatter(
-            x=[ox], y=[oy], mode="markers+text",
+            x=[ox], y=[oy],
+            mode="markers+text",
             text=[f"({ox:.2f},{oy:.2f})"], textposition="top center",
             marker=dict(color="gold", size=12, line=dict(color="black", width=1)),
             name="⭐ Оптимум"
@@ -149,9 +225,17 @@ if solve:
                       height=500, template="plotly_white")
     st.plotly_chart(fig, use_container_width=True)
 
+# --- Natijalar --- #
 if st.session_state.results:
     st.markdown("### 🧮 История решений (значения функции)")
 
-    results = st.session_state.results[-5:]  # faqat oxirgi 5 ta natija
-    for res in reversed(results):
-        st.latex(fr"f_{{{res['№']}}}(x, y) = {res['z']} \; \text{{при}} \; x={res['x']}, \; y={res['y']}")
+    for res in reversed(st.session_state.results):
+        bg_color = "#e3f2fd" if res["type"] == "max" else "#f1f8e9"
+        st.markdown(
+            f"<div class='result-card' style='background:{bg_color};'>"
+            f"<b>f<sub>{res['№']}</sub>(x, y)</b> = {res['z']} &nbsp;&nbsp; "
+            f"<i>при</i> (x = {res['x']}, y = {res['y']}) &nbsp;&nbsp; "
+            f"<b>Тип:</b> {res['type'].upper()}"
+            f"</div>",
+            unsafe_allow_html=True
+        )
