@@ -5,16 +5,13 @@ from itertools import combinations
 
 st.set_page_config(page_title="Линейное программирование — Решатель", layout="wide")
 
-# 💅 CSS — segmentlar balandroq, matn to‘liq chiqsin
+# 💅 CSS — to‘liq max/min ko‘rinadi
 st.markdown("""
 <style>
-/* Segment tugmalar (≤ ≥ =, max/min) uchun umumiy uslub */
-.stSegmentedControl div[role="radiogroup"] {
-    gap: 4px !important;
-}
+/* Segment tugmalar (≤ ≥ =, max/min) */
 .stSegmentedControl label {
-    min-width: 55px !important;
-    height: 36px !important;
+    min-width: 65px !important;
+    height: 38px !important;
     border-radius: 10px !important;
     border: 1.5px solid #007bff !important;
     background-color: #f8f9fa !important;
@@ -24,11 +21,12 @@ st.markdown("""
     justify-content: center !important;
     font-weight: 500 !important;
     transition: all 0.2s ease-in-out;
+    white-space: nowrap !important;
 }
 .stSegmentedControl label[data-checked="true"] {
     background-color: #007bff !important;
     color: white !important;
-    box-shadow: 0 0 5px rgba(0,123,255,0.4);
+    box-shadow: 0 0 6px rgba(0,123,255,0.4);
 }
 
 /* Tugmalar */
@@ -61,7 +59,8 @@ button[kind="secondary"]:hover {
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
 
-    col1, col2, col3, col4, col5, col6 = st.columns([1, 0.2, 1, 0.2, 0.5, 1])
+    # 🔹 kenglikni kattalashtirdik
+    col1, col2, col3, col4, col5 = st.columns([1, 0.2, 1, 0.2, 1.2])
     with col1:
         a1 = st.number_input("", value=5.3, key="a1")
     with col2:
@@ -71,7 +70,12 @@ with st.sidebar:
     with col4:
         st.write("*y →")
     with col5:
-        opt_type = st.segmented_control("", ["max", "min"], selection_mode="single", default="max", key="opt_type")
+        opt_type = st.segmented_control(
+            "", ["max", "min"],
+            selection_mode="single",
+            default="max",
+            key="opt_type"
+        )
 
     st.markdown("### ✏️ Ограничения")
 
@@ -88,7 +92,7 @@ with st.sidebar:
     def remove_constraint(i):
         st.session_state.constraints.pop(i)
 
-    # Cheklovlar
+    # 🔹 Cheklovlar
     for i, cons in enumerate(st.session_state.constraints):
         cols = st.columns([1, 0.2, 1, 0.3, 1, 0.9, 0.3])
         with cols[0]:
@@ -100,8 +104,13 @@ with st.sidebar:
         with cols[3]:
             st.write("y")
         with cols[4]:
-            cons["sign"] = st.segmented_control("", ["≤", "≥", "="],
-                                                selection_mode="single", default=cons["sign"], key=f"sign{i}")
+            cons["sign"] = st.segmented_control(
+                "",
+                ["≤", "≥", "="],
+                selection_mode="single",
+                default=cons["sign"],
+                key=f"sign{i}"
+            )
         with cols[5]:
             cons["b"] = st.number_input("", value=cons["b"], key=f"b{i}")
         with cols[6]:
