@@ -5,7 +5,7 @@ from itertools import combinations
 
 st.set_page_config(page_title="Линейное программирование — Решатель", layout="wide")
 
-# 💅 CSS — chiroyli segmentlar va tugmalar
+# 💅 CSS — dizayn va ranglar
 st.markdown("""
 <style>
 /* Segment tugmalar */
@@ -52,13 +52,14 @@ button[kind="secondary"]:hover {
     background-color: #0056b3 !important;
 }
 
-/* Natija blok stili */
+/* Gradient tarix kartochkasi */
 .result-card {
-    background-color: #f8faff;
-    border-left: 4px solid #007bff;
-    border-radius: 8px;
+    background: linear-gradient(90deg, rgba(0,123,255,0.15) 0%, rgba(0,212,255,0.15) 100%);
+    border-left: 5px solid #007bff;
+    border-radius: 10px;
     padding: 0.8rem 1rem;
     margin-top: 0.8rem;
+    font-size: 15px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -175,6 +176,10 @@ if solve:
         z = [a1*x + a2*y for (x, y) in feas]
         best = np.argmax(z) if opt_type=="max" else np.argmin(z)
         ox, oy, zopt = *feas[best], z[best]
+
+        # 🔹 faqat oxirgi 5 ta natijani saqlash
+        st.session_state.results = st.session_state.results[-4:]
+
         result_id = len(st.session_state.results) + 1
         st.session_state.results.append({
             "№": result_id,
@@ -215,12 +220,13 @@ if solve:
 if st.session_state.results:
     st.markdown("### 🧮 История решений (значения функции)")
 
-    results = st.session_state.results
-    for i, res in enumerate(reversed(results)):
+    for res in reversed(st.session_state.results):
+        bg_color = "#e3f2fd" if res["type"] == "max" else "#f1f8e9"
         st.markdown(
-            f"<div class='result-card'>"
-            f"<b>f<sub>{res['№']}</sub>(x, y)</b> = {res['z']} &nbsp;&nbsp;&nbsp;"
-            f"<i>при</i> (x = {res['x']}, y = {res['y']})"
+            f"<div class='result-card' style='background:{bg_color};'>"
+            f"<b>f<sub>{res['№']}</sub>(x, y)</b> = {res['z']} &nbsp;&nbsp; "
+            f"<i>при</i> (x = {res['x']}, y = {res['y']}) &nbsp;&nbsp; "
+            f"<b>Тип:</b> {res['type'].upper()}"
             f"</div>",
             unsafe_allow_html=True
         )
