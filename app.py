@@ -5,10 +5,10 @@ from itertools import combinations
 
 st.set_page_config(page_title="Линейное программирование — Решатель", layout="wide")
 
-# 💅 CSS — to‘liq max/min ko‘rinadi
+# 💅 CSS — chiroyli segmentlar va tugmalar
 st.markdown("""
 <style>
-/* Segment tugmalar (≤ ≥ =, max/min) */
+/* Segment tugmalar */
 .stSegmentedControl label {
     min-width: 65px !important;
     height: 38px !important;
@@ -51,6 +51,15 @@ button[kind="secondary"] {
 button[kind="secondary"]:hover {
     background-color: #0056b3 !important;
 }
+
+/* Natija blok stili */
+.result-card {
+    background-color: #f8faff;
+    border-left: 4px solid #007bff;
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    margin-top: 0.8rem;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -59,7 +68,6 @@ button[kind="secondary"]:hover {
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
 
-    # 🔹 kenglikni kattalashtirdik
     col1, col2, col3, col4, col5 = st.columns([1, 0.2, 1, 0.2, 1.2])
     with col1:
         a1 = st.number_input("", value=5.3, key="a1")
@@ -92,7 +100,6 @@ with st.sidebar:
     def remove_constraint(i):
         st.session_state.constraints.pop(i)
 
-    # 🔹 Cheklovlar
     for i, cons in enumerate(st.session_state.constraints):
         cols = st.columns([1, 0.2, 1, 0.3, 1, 0.9, 0.3])
         with cols[0]:
@@ -207,6 +214,13 @@ if solve:
 # --- Natijalar --- #
 if st.session_state.results:
     st.markdown("### 🧮 История решений (значения функции)")
+
     results = st.session_state.results
     for i, res in enumerate(reversed(results)):
-        st.latex(fr"f_{{{res['№']}}}(x, y) = {res['z']} \\quad \\text{{при}} \\quad x={res['x']}, \\; y={res['y']}")
+        st.markdown(
+            f"<div class='result-card'>"
+            f"<b>f<sub>{res['№']}</sub>(x, y)</b> = {res['z']} &nbsp;&nbsp;&nbsp;"
+            f"<i>при</i> (x = {res['x']}, y = {res['y']})"
+            f"</div>",
+            unsafe_allow_html=True
+        )
