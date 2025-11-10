@@ -5,9 +5,32 @@ from itertools import combinations
 
 st.set_page_config(page_title="Линейное программирование — Решатель", layout="wide")
 
-# 💙 Zamonaviy rang va shakl
+# 💅 CSS — segmentlar balandroq, matn to‘liq chiqsin
 st.markdown("""
 <style>
+/* Segment tugmalar (≤ ≥ =, max/min) uchun umumiy uslub */
+.stSegmentedControl div[role="radiogroup"] {
+    gap: 4px !important;
+}
+.stSegmentedControl label {
+    min-width: 55px !important;
+    height: 36px !important;
+    border-radius: 10px !important;
+    border: 1.5px solid #007bff !important;
+    background-color: #f8f9fa !important;
+    color: #007bff !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease-in-out;
+}
+.stSegmentedControl label[data-checked="true"] {
+    background-color: #007bff !important;
+    color: white !important;
+    box-shadow: 0 0 5px rgba(0,123,255,0.4);
+}
+
 /* Tugmalar */
 .stButton > button {
     background-color: #007bff !important;
@@ -17,7 +40,9 @@ st.markdown("""
     font-weight: 500 !important;
     padding: 0.5rem 1rem !important;
 }
-.stButton > button:hover { background-color: #0056b3 !important; }
+.stButton > button:hover {
+    background-color: #0056b3 !important;
+}
 
 /* Удалить */
 button[kind="secondary"] {
@@ -25,9 +50,12 @@ button[kind="secondary"] {
     color: white !important;
     border-radius: 6px !important;
 }
-button[kind="secondary"]:hover { background-color: #0056b3 !important; }
+button[kind="secondary"]:hover {
+    background-color: #0056b3 !important;
+}
 </style>
 """, unsafe_allow_html=True)
+
 
 # --- Sidebar --- #
 with st.sidebar:
@@ -60,8 +88,9 @@ with st.sidebar:
     def remove_constraint(i):
         st.session_state.constraints.pop(i)
 
+    # Cheklovlar
     for i, cons in enumerate(st.session_state.constraints):
-        cols = st.columns([1, 0.2, 1, 0.3, 1, 0.8, 0.3])
+        cols = st.columns([1, 0.2, 1, 0.3, 1, 0.9, 0.3])
         with cols[0]:
             cons["c"] = st.number_input("", value=cons["c"], key=f"c{i}")
         with cols[1]:
@@ -71,8 +100,8 @@ with st.sidebar:
         with cols[3]:
             st.write("y")
         with cols[4]:
-            cons["sign"] = st.segmented_control("", ["≤", "≥", "="], selection_mode="single",
-                                                default=cons["sign"], key=f"sign{i}")
+            cons["sign"] = st.segmented_control("", ["≤", "≥", "="],
+                                                selection_mode="single", default=cons["sign"], key=f"sign{i}")
         with cols[5]:
             cons["b"] = st.number_input("", value=cons["b"], key=f"b{i}")
         with cols[6]:
@@ -87,7 +116,9 @@ with st.sidebar:
         st.session_state.results = []
         st.experimental_rerun()
 
+
 st.title("📊 Линейное программирование — Решатель")
+
 
 # --- Hisoblash qismi --- #
 if solve:
@@ -163,6 +194,8 @@ if solve:
                       height=500, template="plotly_white")
     st.plotly_chart(fig, use_container_width=True)
 
+
+# --- Natijalar --- #
 if st.session_state.results:
     st.markdown("### 🧮 История решений (значения функции)")
     results = st.session_state.results
