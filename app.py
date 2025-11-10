@@ -69,13 +69,12 @@ button[kind="secondary"]:hover {
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
 
-    # HTML ko‘rinish
     st.markdown("""
     <script>
     const sendValues = () => {
         const a1 = parseFloat(document.getElementById("a1").value);
         const a2 = parseFloat(document.getElementById("a2").value);
-        const opt = document.querySelector('input[name="opt"]:checked').nextSibling.textContent.trim();
+        const opt = document.querySelector('input[name="opt"]:checked').value;
         window.parent.postMessage({a1:a1, a2:a2, opt:opt}, "*");
     };
     document.addEventListener("input", sendValues);
@@ -95,10 +94,10 @@ with st.sidebar:
         <input type="number" id="a2" value="3.0" step="0.1" style="width:65px; padding:4px; border-radius:5px; border:1px solid #ccc;">
         *y →
         <label style="display:flex; align-items:center; gap:4px; margin-left:6px;">
-            <input type="radio" name="opt" checked style="accent-color:#007bff;"> max
+            <input type="radio" name="opt" value="max" checked style="accent-color:#007bff;"> max
         </label>
         <label style="display:flex; align-items:center; gap:4px;">
-            <input type="radio" name="opt" style="accent-color:#007bff;"> min
+            <input type="radio" name="opt" value="min" style="accent-color:#007bff;"> min
         </label>
     </div>
     """, unsafe_allow_html=True)
@@ -108,13 +107,11 @@ with st.sidebar:
     if "a2" not in st.session_state: st.session_state.a2 = 3.0
     if "opt_type" not in st.session_state: st.session_state.opt_type = "max"
 
-    # Ekranda yashirin soha orqali qiymatlar o‘qiladi
     a1 = st.session_state.a1
     a2 = st.session_state.a2
     opt_type = st.session_state.opt_type
 
     st.markdown("### ✏️ Ограничения")
-
 
     if "constraints" not in st.session_state:
         st.session_state.constraints = [
