@@ -94,35 +94,13 @@ if "results" not in st.session_state:
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
     
-    # 🔹 HTML table orqali bir qatorda
-    st.markdown("""
-    <table style="width: 100%; border: none; margin: 0; padding: 0;">
-        <tr>
-            <td style="text-align: center; width: 20%;">
-                <div>4,0</div>
-                <div style="font-size: 12px;">*x</div>
-            </td>
-            <td style="text-align: center; width: 5%;">+</td>
-            <td style="text-align: center; width: 20%;">
-                <div>3,0</div>
-                <div style="font-size: 12px;">*y</div>
-            </td>
-            <td style="text-align: center; width: 5%;">→</td>
-            <td style="text-align: center; width: 50%;">
-                max
-            </td>
-        </tr>
-    </table>
-    """, unsafe_allow_html=True)
+    # Inputlar
+    a1 = st.number_input("x koeffitsienti", value=4.0, key="a1", format="%.1f", step=0.1)
+    a2 = st.number_input("y koeffitsienti", value=3.0, key="a2", format="%.1f", step=0.1)
+    opt_type = st.selectbox("Maqsad", ["max", "min"], key="opt_type")
     
-    # Haqiqiy inputlar - yashirin
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        a1 = st.number_input("a1", value=4.0, key="a1", format="%.1f", step=0.1, label_visibility="collapsed")
-    with col2:
-        a2 = st.number_input("a2", value=3.0, key="a2", format="%.1f", step=0.1, label_visibility="collapsed")
-    with col3:
-        opt_type = st.segmented_control("", ["max", "min"], default="max", key="opt_type")
+    # Ko'rinish
+    st.info(f"**{a1:.1f} * x + {a2:.1f} * y → {opt_type}**")
 
     st.markdown("### ✏️ Ограничения")
 
@@ -139,53 +117,32 @@ with st.sidebar:
         st.session_state.constraints.pop(i)
 
     for i, cons in enumerate(st.session_state.constraints):
-        # 🔹 HTML table orqali cheklovlarni bir qatorda
-        st.markdown(f"""
-        <table style="width: 100%; border: none; margin: 5px 0; padding: 0;">
-            <tr>
-                <td style="text-align: center; width: 20%;">
-                    <div>{cons['c']:.1f}</div>
-                    <div style="font-size: 11px;">x</div>
-                </td>
-                <td style="text-align: center; width: 5%;">+</td>
-                <td style="text-align: center; width: 20%;">
-                    <div>{cons['d']:.1f}</div>
-                    <div style="font-size: 11px;">y</div>
-                </td>
-                <td style="text-align: center; width: 10%;">{cons['sign']}</td>
-                <td style="text-align: center; width: 20%;">
-                    <div>{cons['b']:.1f}</div>
-                </td>
-                <td style="text-align: center; width: 10%;">
-                    <button>🗑</button>
-                </td>
-            </tr>
-        </table>
-        """, unsafe_allow_html=True)
+        st.markdown(f"**Ограничение {i+1}**")
         
-        # Haqiqiy inputlar - yashirin
-        cols = st.columns([2, 2, 1, 2, 1])
-        with cols[0]:
-            cons["c"] = st.number_input("c", value=cons["c"], key=f"c{i}", format="%.1f", step=0.1, label_visibility="collapsed")
-        with cols[1]:
-            cons["d"] = st.number_input("d", value=cons["d"], key=f"d{i}", format="%.1f", step=0.1, label_visibility="collapsed")
-        with cols[2]:
-            cons["sign"] = st.segmented_control("", ["≤", "≥", "="], default=cons["sign"], key=f"sign{i}")
-        with cols[3]:
-            cons["b"] = st.number_input("b", value=cons["b"], key=f"b{i}", format="%.1f", step=0.1, label_visibility="collapsed")
-        with cols[4]:
-            if st.button("🗑", key=f"del{i}"):
+        # Inputlar
+        col1, col2 = st.columns(2)
+        with col1:
+            cons["c"] = st.number_input(f"x коэф.", value=cons["c"], key=f"c{i}", format="%.1f", step=0.1)
+            cons["d"] = st.number_input(f"y коэф.", value=cons["d"], key=f"d{i}", format="%.1f", step=0.1)
+        with col2:
+            cons["sign"] = st.selectbox("Знак", ["≤", "≥", "="], index=["≤", "≥", "="].index(cons["sign"]), key=f"sign{i}")
+            cons["b"] = st.number_input(f"Значение", value=cons["b"], key=f"b{i}", format="%.1f", step=0.1)
+        
+        # Ko'rinish va o'chirish tugmasi
+        col_show, col_del = st.columns([3, 1])
+        with col_show:
+            st.code(f"{cons['c']:.1f}x + {cons['d']:.1f}y {cons['sign']} {cons['b']:.1f}")
+        with col_del:
+            if st.button("🗑 Удалить", key=f"del{i}"):
                 remove_constraint(i)
                 st.rerun()
 
-    # Tugmalar
-    st.button("+ Добавить", on_click=add_constraint, use_container_width=True)
-    solve = st.button("Решить", use_container_width=True)
-    if st.button("Очистить", use_container_width=True):
+    st.button("+ Добавить ограничение", on_click=add_constraint)
+    solve = st.button("✅ Решить")
+    if st.button("🗑 Очистить все"):
         st.session_state.constraints = []
         st.session_state.results = []
         st.rerun()
-
 st.title("📊 Линейное программирование — Решатель")
 
 # --- Hisoblash qismi --- #
