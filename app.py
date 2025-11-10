@@ -77,8 +77,8 @@ button[kind="secondary"]:hover {
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
 
-    # 🔹 Estetik matematik shakl: 4,00 × 𝑥 + 3,00 × 𝑦 →
-    col1, col2, col3, col4, col5, col6 = st.columns([1, 0.4, 1, 0.4, 0.5, 1.2])
+    # 🔹 BARCHA ELEMENTLAR BIR QATORDA (tekis chiziq bo‘ylab)
+    col1, col2, col3, col4, col5, col6, col7 = st.columns([1, 0.4, 0.4, 1, 0.4, 0.4, 1.2])
     with col1:
         a1 = st.number_input("", value=4.0, key="a1")
     with col2:
