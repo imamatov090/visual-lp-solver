@@ -77,13 +77,6 @@ button[kind="secondary"]:hover {
 .stSegmentedControl {
     justify-content: center;
 }
-
-/* ✅ YANGI: Bir qator ko'rinishi */
-.single-row {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
 </style>
 """, unsafe_allow_html=True)
 
@@ -102,27 +95,26 @@ with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
     
     # 🔹 BIR QATORDA: 4,0 *x + 3,0 *y → max
-    col1, col2, col3, col4, col5, col6 = st.columns([1.2, 0.4, 1.2, 0.4, 0.6, 1.2])
+    col1, col2, col3, col4, col5, col6 = st.columns([1, 0.3, 1, 0.3, 0.3, 1.2])
     
     with col1:
-        a1 = st.number_input("a1", value=4.0, key="a1", format="%.1f", step=0.1, label_visibility="collapsed")
-        st.markdown("<div style='text-align: center; margin-top: -15px; font-size: 14px;'>*x</div>", unsafe_allow_html=True)
+        a1 = st.number_input("", value=4.0, key="a1", format="%.1f", step=0.1, label_visibility="collapsed")
+        st.markdown("<div style='text-align: center; font-size: 14px;'>*x</div>", unsafe_allow_html=True)
     
     with col2:
-        st.markdown("<div style='text-align: center; margin-top: 10px; font-size: 16px;'>+</div>", unsafe_allow_html=True)
+        st.markdown("<div style='text-align: center; margin-top: 25px;'>+</div>", unsafe_allow_html=True)
     
     with col3:
-        a2 = st.number_input("a2", value=3.0, key="a2", format="%.1f", step=0.1, label_visibility="collapsed")
-        st.markdown("<div style='text-align: center; margin-top: -15px; font-size: 14px;'>*y</div>", unsafe_allow_html=True)
+        a2 = st.number_input("", value=3.0, key="a2", format="%.1f", step=0.1, label_visibility="collapsed")
+        st.markdown("<div style='text-align: center; font-size: 14px;'>*y</div>", unsafe_allow_html=True)
     
     with col4:
-        st.markdown("<div style='text-align: center; margin-top: 10px; font-size: 16px;'>→</div>", unsafe_allow_html=True)
+        st.markdown("<div style='text-align: center; margin-top: 25px;'>→</div>", unsafe_allow_html=True)
     
     with col5:
         st.write("")
     
     with col6:
-        st.markdown("<div style='margin-top: 5px;'>", unsafe_allow_html=True)
         opt_type = st.segmented_control(
             "",
             ["max", "min"],
@@ -130,7 +122,6 @@ with st.sidebar:
             default="max",
             key="opt_type"
         )
-        st.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown("### ✏️ Ограничения")
 
@@ -142,21 +133,21 @@ with st.sidebar:
 
     for i, cons in enumerate(st.session_state.constraints):
         # 🔹 BIR QATORDA: 3,2 x + -2,0 y ≤ 3,0
-        cols = st.columns([1.2, 0.3, 1.2, 0.3, 0.8, 1.2, 0.4])
+        cols = st.columns([1, 0.3, 1, 0.3, 0.5, 1, 0.3])
         
         with cols[0]:
-            cons["c"] = st.number_input("c", value=cons["c"], key=f"c{i}", format="%.1f", step=0.1, label_visibility="collapsed")
-            st.markdown("<div style='text-align: center; margin-top: -15px; font-size: 12px;'>x</div>", unsafe_allow_html=True)
+            cons["c"] = st.number_input("", value=cons["c"], key=f"c{i}", format="%.1f", step=0.1, label_visibility="collapsed")
+            st.markdown("<div style='text-align: center; font-size: 12px;'>x</div>", unsafe_allow_html=True)
         
         with cols[1]:
-            st.markdown("<div style='text-align: center; margin-top: 10px; font-size: 14px;'>+</div>", unsafe_allow_html=True)
+            st.markdown("<div style='text-align: center; margin-top: 25px;'>+</div>", unsafe_allow_html=True)
         
         with cols[2]:
-            cons["d"] = st.number_input("d", value=cons["d"], key=f"d{i}", format="%.1f", step=0.1, label_visibility="collapsed")
-            st.markdown("<div style='text-align: center; margin-top: -15px; font-size: 12px;'>y</div>", unsafe_allow_html=True)
+            cons["d"] = st.number_input("", value=cons["d"], key=f"d{i}", format="%.1f", step=0.1, label_visibility="collapsed")
+            st.markdown("<div style='text-align: center; font-size: 12px;'>y</div>", unsafe_allow_html=True)
         
         with cols[3]:
-            st.markdown("<div style='text-align: center; margin-top: 10px; font-size: 14px;'></div>", unsafe_allow_html=True)
+            st.markdown("<div style='text-align: center; margin-top: 25px;'></div>", unsafe_allow_html=True)
         
         with cols[4]:
             cons["sign"] = st.segmented_control(
@@ -168,26 +159,20 @@ with st.sidebar:
             )
         
         with cols[5]:
-            cons["b"] = st.number_input("b", value=cons["b"], key=f"b{i}", format="%.1f", step=0.1, label_visibility="collapsed")
-            st.markdown("<div style='text-align: center; margin-top: -15px; font-size: 12px; color: transparent;'>.</div>", unsafe_allow_html=True)
+            cons["b"] = st.number_input("", value=cons["b"], key=f"b{i}", format="%.1f", step=0.1, label_visibility="collapsed")
+            st.markdown("<div style='text-align: center; font-size: 12px;'></div>", unsafe_allow_html=True)
         
         with cols[6]:
-            st.markdown("<div style='margin-top: 5px;'>", unsafe_allow_html=True)
             if st.button("🗑", key=f"del{i}"):
                 remove_constraint(i)
                 st.rerun()
-            st.markdown("</div>", unsafe_allow_html=True)
 
-    col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 1])
-    with col_btn1:
-        st.button("+ Добавить", on_click=add_constraint, use_container_width=True)
-    with col_btn2:
-        solve = st.button("Решить", use_container_width=True)
-    with col_btn3:
-        if st.button("Очистить", use_container_width=True):
-            st.session_state.constraints = []
-            st.session_state.results = []
-            st.rerun()
+    st.button("+ Добавить", on_click=add_constraint)
+    solve = st.button("Решить")
+    if st.button("Очистить"):
+        st.session_state.constraints = []
+        st.session_state.results = []
+        st.rerun()
 
 st.title("📊 Линейное программирование — Решатель")
 
