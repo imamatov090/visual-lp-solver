@@ -77,8 +77,8 @@ button[kind="secondary"]:hover {
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
 
-    # Hammasini 1 qatorda chiqaramiz
-    col1, col2, col3, col4, col5, col6, col7 = st.columns([1, 0.3, 1, 0.3, 0.5, 0.3, 1])
+    # Hammasini bir qatorda chiqarish uchun layout
+    col1, col2, col3, col4, col5 = st.columns([1.3, 0.3, 1.3, 0.3, 1.2])
 
     with col1:
         a1 = st.number_input("", value=4.0, step=0.1, key="a1", label_visibility="collapsed")
@@ -89,12 +89,12 @@ with st.sidebar:
     with col4:
         st.markdown("<p style='font-size:17px;font-family:Cambria Math;'>× y →</p>", unsafe_allow_html=True)
     with col5:
-        opt_type = st.segmented_control(
+        opt_type = st.radio(
             "",
             ["max", "min"],
-            selection_mode="single",
-            default="max",
-            key="opt_type"
+            horizontal=True,
+            key="opt_type",
+            label_visibility="collapsed"
         )
 
     st.markdown("### ✏️ Ограничения")
