@@ -77,8 +77,18 @@ button[kind="secondary"]:hover {
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
 
-    # HTML yordamida 1 qatorda tartibli joylashtirish
+    # HTML ko‘rinish
     st.markdown("""
+    <script>
+    const sendValues = () => {
+        const a1 = parseFloat(document.getElementById("a1").value);
+        const a2 = parseFloat(document.getElementById("a2").value);
+        const opt = document.querySelector('input[name="opt"]:checked').nextSibling.textContent.trim();
+        window.parent.postMessage({a1:a1, a2:a2, opt:opt}, "*");
+    };
+    document.addEventListener("input", sendValues);
+    </script>
+
     <div style="
         display: flex;
         align-items: center;
@@ -100,6 +110,16 @@ with st.sidebar:
         </label>
     </div>
     """, unsafe_allow_html=True)
+
+    # Fallback qiymatlar
+    if "a1" not in st.session_state: st.session_state.a1 = 4.0
+    if "a2" not in st.session_state: st.session_state.a2 = 3.0
+    if "opt_type" not in st.session_state: st.session_state.opt_type = "max"
+
+    # Ekranda yashirin soha orqali qiymatlar o‘qiladi
+    a1 = st.session_state.a1
+    a2 = st.session_state.a2
+    opt_type = st.session_state.opt_type
 
     st.markdown("### ✏️ Ограничения")
     if "constraints" not in st.session_state:
