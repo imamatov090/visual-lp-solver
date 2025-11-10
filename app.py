@@ -66,24 +66,39 @@ st.markdown("""
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
 
-    # 💡 Bir qatordagi chiroyli ko‘rinish
-    col1, col2, col3, col4, col5, col6 = st.columns([1, 0.25, 1, 0.25, 0.7, 1.2])
-    with col1:
-        a1 = st.number_input("", value=4.0, step=0.1, key="a1")
-    with col2:
-        st.markdown("*x +", unsafe_allow_html=True)
-    with col3:
-        a2 = st.number_input("", value=3.0, step=0.1, key="a2")
-    with col4:
-        st.markdown("*y →", unsafe_allow_html=True)
-    with col5:
-        opt_type = st.segmented_control(
-            "",
-            ["max", "min"],
-            selection_mode="single",
-            default="max",
-            key="opt_type"
-        )
+    # 🔹 Bir qatordagi chiroyli HTML ko‘rinish
+    st.markdown("""
+    <div style="
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 6px;
+        font-family: 'Cambria Math', 'Times New Roman', serif;
+        font-size: 18px;
+    ">
+        <input type="number" id="a1" value="4.0" step="0.1"
+            style="width:65px; padding:4px; border-radius:5px; border:1px solid #ccc;">
+        *x 
+        <span style="font-size:19px; font-weight:bold;">+</span>
+        <input type="number" id="a2" value="3.0" step="0.1"
+            style="width:65px; padding:4px; border-radius:5px; border:1px solid #ccc;">
+        *y →
+    </div>
+    """, unsafe_allow_html=True)
+
+    # 🔹 Max/Min tanlov — bir qatorda, hech qanday “tanlang” yozuvsiz
+    opt_type = st.radio(
+        "",
+        options=["max", "min"],
+        horizontal=True,
+        index=0,
+        label_visibility="collapsed",
+        key="opt_type"
+    )
+
+    # 🔹 Qiymatlar (Python uchun haqiqiy inputlar)
+    a1 = st.number_input("Koef. a1", value=4.0, step=0.1, key="a1", label_visibility="collapsed")
+    a2 = st.number_input("Koef. a2", value=3.0, step=0.1, key="a2", label_visibility="collapsed")
 
     st.markdown("### ✏️ Ограничения")
 
