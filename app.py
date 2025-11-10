@@ -77,17 +77,17 @@ button[kind="secondary"]:hover {
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
 
-    # Hammasini bir qatorda chiqarish uchun layout
-    col1, col2, col3, col4, col5 = st.columns([1.3, 0.3, 1.3, 0.3, 1.2])
+    # Hammasini bir qatorda joylashtirish
+    col1, col2, col3, col4, col5 = st.columns([1.2, 0.6, 1.2, 0.6, 1])
 
     with col1:
         a1 = st.number_input("", value=4.0, step=0.1, key="a1", label_visibility="collapsed")
     with col2:
-        st.markdown("<p style='font-size:17px;font-family:Cambria Math;'>× x +</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size:17px;font-family:Cambria Math;'>*x +</p>", unsafe_allow_html=True)
     with col3:
         a2 = st.number_input("", value=3.0, step=0.1, key="a2", label_visibility="collapsed")
     with col4:
-        st.markdown("<p style='font-size:17px;font-family:Cambria Math;'>× y →</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size:17px;font-family:Cambria Math;'>*y →</p>", unsafe_allow_html=True)
     with col5:
         opt_type = st.radio(
             "",
