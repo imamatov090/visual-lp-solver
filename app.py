@@ -77,7 +77,7 @@ button[kind="secondary"]:hover {
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
 
-    # 💡 HTML yordamida 𝑥, 𝑦 matematik yozuvli chiroyli bitta qatordagi formula
+    # HTML orqali chiroyli bir qatordagi ko‘rinish
     st.markdown("""
     <div style="
         display: flex;
@@ -88,18 +88,20 @@ with st.sidebar:
         font-style: italic;
         font-size: 18px;
     ">
-        <input type="number" id="a1" value="4.0" style="width:60px; padding:4px; border-radius:5px; border:1px solid #ccc;">
-        × 𝑥 + 
-        <input type="number" id="a2" value="3.0" style="width:60px; padding:4px; border-radius:5px; border:1px solid #ccc;">
-        × 𝑦 →
+        <span>4.0 × 𝑥 + 3.0 × 𝑦 →</span>
         <span style="font-style:normal;">
-            <select id="opt_type" style="border:1.5px solid #007bff; border-radius:6px; padding:2px 6px; color:#007bff; font-weight:500;">
+            <select style="border:1.5px solid #007bff; border-radius:6px; padding:2px 6px; color:#007bff; font-weight:500;">
                 <option>max</option>
                 <option>min</option>
             </select>
         </span>
     </div>
     """, unsafe_allow_html=True)
+
+    # 🔹 Lekin haqiqiy qiymatlar (hisoblash uchun)
+    a1 = st.number_input("Коэффициент при x", value=4.0, key="a1", label_visibility="collapsed")
+    a2 = st.number_input("Коэффициент при y", value=3.0, key="a2", label_visibility="collapsed")
+    opt_type = st.radio("Тип оптимизации:", ["max", "min"], horizontal=True, label_visibility="collapsed")
 
     st.markdown("### ✏️ Ограничения")
     if "constraints" not in st.session_state:
