@@ -63,14 +63,12 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- Sidebar --- #
-from streamlit_js_eval import streamlit_js_eval
-
 with st.sidebar:
     st.markdown("### 🎯 Целевая функция")
 
-    # HTML ko‘rinish
+    # Siz xohlagan HTML ko‘rinish
     st.markdown("""
-    <div id="target-func" style="
+    <div style="
         display: flex;
         align-items: center;
         justify-content: flex-start;
@@ -85,36 +83,26 @@ with st.sidebar:
         <input type="number" id="a2" value="3.0" step="0.1"
             style="width:65px; padding:4px; border-radius:5px; border:1px solid #ccc;">
         *y →
-        <label style="display:flex; align-items:center; gap:4px; margin-left:6px;">
-            <input type="radio" name="opt" value="max" checked style="accent-color:#007bff;"> max
-        </label>
-        <label style="display:flex; align-items:center; gap:4px;">
-            <input type="radio" name="opt" value="min" style="accent-color:#007bff;"> min
-        </label>
+        <span style="color:#007bff; font-weight:500;">(tanlang ↓)</span>
     </div>
     """, unsafe_allow_html=True)
 
-    # 🔧 HTML’dagi qiymatlarni o‘qish
-    js_code = """
-    var a1 = parseFloat(document.getElementById('a1').value);
-    var a2 = parseFloat(document.getElementById('a2').value);
-    var opt = document.querySelector('input[name="opt"]:checked').value;
-    return {a1:a1, a2:a2, opt:opt};
-    """
-    vals = streamlit_js_eval(js_expressions=js_code, key="read_js_values")
+    # 🔹 Streamlit yordamida yashirin haqiqiy tanlov (Python uchun)
+    opt_type = st.radio(
+        "Tanlang",
+        options=["max", "min"],
+        horizontal=True,
+        index=0,
+        label_visibility="collapsed",
+        key="opt_type"
+    )
 
-    # Agar foydalanuvchi hali tanlamagan bo‘lsa – default qiymatlar
-    if vals is None:
-        a1, a2, opt_type = 4.0, 3.0, "max"
-    else:
-        a1, a2, opt_type = vals["a1"], vals["a2"], vals["opt"]
-
-    # Streamlit session_state orqali saqlab qo‘yamiz
-    st.session_state.a1 = a1
-    st.session_state.a2 = a2
-    st.session_state.opt_type = opt_type
+    # 🔹 Qiymatlar (HTML inputlar hozircha faqat chiroy uchun, real qiymatlar quyida)
+    a1 = st.number_input("Koef. a1", value=4.0, step=0.1, key="a1", label_visibility="collapsed")
+    a2 = st.number_input("Koef. a2", value=3.0, step=0.1, key="a2", label_visibility="collapsed")
 
     st.markdown("### ✏️ Ограничения")
+
 
 
     if "constraints" not in st.session_state:
